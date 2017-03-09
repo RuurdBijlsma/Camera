@@ -4,17 +4,22 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
+import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -119,8 +124,18 @@ public class FullscreenActivity extends AppCompatActivity {
         @Override
         public void onOpened(final CameraDevice camera) {
             try {
-                CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(camera.getId());
+                final CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(camera.getId());
                 StreamConfigurationMap configs = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+                assert configs != null;
+
+//                Get optimal preview size
+                Size[] sizes = configs.getOutputSizes(SurfaceTexture.class);
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                int screenHeight = displayMetrics.heightPixels;
+                int screenWidth = displayMetrics.widthPixels;
+                Size optimalSize = getOptimalPreviewSize(sizes, screenWidth, screenHeight);
+
 
                 ArrayList<Surface> surfaces = new ArrayList<>();
                 surfaces.add(holder.getSurface());
@@ -132,6 +147,16 @@ public class FullscreenActivity extends AppCompatActivity {
 
                             CaptureRequest.Builder captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
                             captureRequestBuilder.addTarget(holder.getSurface());
+
+                            //turn on manual controls
+                            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, 0);
+                            captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, 0);
+
+                            //set exposure time
+                            long exposureTime = (long) (0.01 * 1000000000);
+                            captureRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposureTime);
+                            long expTime = captureRequestBuilder.get(CaptureRequest.SENSOR_EXPOSURE_TIME);
+                            long frameDuration = captureRequestBuilder.get(CaptureRequest.SENSOR_FRAME_DURATION);
                             final CaptureRequest captureRequest = captureRequestBuilder.build();
 
                             Timer t = new Timer();
@@ -156,7 +181,11 @@ public class FullscreenActivity extends AppCompatActivity {
                     }
                 };
 
-                camera.createCaptureSession(surfaces, callback, null);
+                if (isHardwareLevelSupported(characteristics, CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)) {
+                    camera.createCaptureSession(surfaces, callback, null);
+                } else {
+                    System.out.println("BAD PHONE");
+                }
                 System.out.println("OPEN");
             } catch (CameraAccessException e) {
                 e.printStackTrace();
@@ -173,4 +202,43 @@ public class FullscreenActivity extends AppCompatActivity {
             System.out.println("Error");
         }
     };
+
+    boolean isHardwareLevelSupported(CameraCharacteristics c, int requiredLevel) {
+        int deviceLevel = c.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+        if (deviceLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+            return requiredLevel == deviceLevel;
+        }
+        // deviceLevel is not LEGACY, can use numerical sort
+        return requiredLevel <= deviceLevel;
+    }
+
+    private Size getOptimalPreviewSize(Size[] sizes, int w, int h) {
+        final double ASPECT_TOLERANCE = 0.1;
+        double targetRatio = (double) h / w;
+
+        if (sizes == null) return null;
+
+        Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+
+        for (Size size : sizes) {
+            double ratio = (double) size.getWidth() / size.getHeight();
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (Math.abs(size.getHeight() - h) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.getHeight() - h);
+            }
+        }
+
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Size size : sizes) {
+                if (Math.abs(size.getHeight() - h) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.getHeight() - h);
+                }
+            }
+        }
+        return optimalSize;
+    }
 }
