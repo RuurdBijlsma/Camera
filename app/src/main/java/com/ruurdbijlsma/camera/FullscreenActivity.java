@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -24,8 +23,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.widget.ImageButton;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -37,12 +35,20 @@ import java.util.TimerTask;
  * status bar and navigation/system bar) with user interaction.
  */
 public class FullscreenActivity extends AppCompatActivity {
+    ImageButton search;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_fullscreen);
+
+        search = (ImageButton) findViewById(R.id.capture);
+        search.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     @Override
@@ -149,16 +155,16 @@ public class FullscreenActivity extends AppCompatActivity {
                             captureRequestBuilder.addTarget(holder.getSurface());
 
                             //turn on manual controls
-                            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, 0);
-                            captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, 0);
+//                            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, 0);
+//                            captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, 0);
 
                             //set exposure time
                             long exposureTime = (long) (0.01 * 1000000000);
                             captureRequestBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposureTime);
                             long expTime = captureRequestBuilder.get(CaptureRequest.SENSOR_EXPOSURE_TIME);
                             long frameDuration = captureRequestBuilder.get(CaptureRequest.SENSOR_FRAME_DURATION);
-                            final CaptureRequest captureRequest = captureRequestBuilder.build();
 
+                            final CaptureRequest captureRequest = captureRequestBuilder.build();
                             Timer t = new Timer();
                             t.scheduleAtFixedRate(new TimerTask() {
                                 @Override
