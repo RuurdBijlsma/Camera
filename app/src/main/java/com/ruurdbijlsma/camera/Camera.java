@@ -26,17 +26,46 @@ import java.util.TimerTask;
  * Gemaakt door ruurd op 10-3-2017.
  */
 
-class Camera {
+public class Camera {
     private CameraManager manager;
     private String[] ids;
     private Activity activity;
     private Surface surface;
     private CameraDevice device;
     private CameraCaptureSession currentSession;
-    private CameraState state = new CameraState();
+    public CameraState state = new CameraState() {
+        @Override
+        public void onChange() {
+            if (isReady())
+                try {
+                    restartPreview();
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+        }
+    };
+
+    private CameraDevice.StateCallback onCameraOpen = new CameraDevice.StateCallback() {
+        @Override
+        public void onOpened(@NonNull final CameraDevice camera) {
+            try {
+                startCapture(camera);
+            } catch (CameraAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onDisconnected(@NonNull CameraDevice camera) {
+        }
+
+        @Override
+        public void onError(@NonNull CameraDevice camera, int error) {
+        }
+    };
 
     //Constructor -> open -> onCameraOpen -> startCapture -> startPreview
-    Camera(Activity activity, Surface surface) {
+    public Camera(Activity activity, Surface surface) {
         this.activity = activity;
         this.surface = surface;
         try {
@@ -65,25 +94,6 @@ class Camera {
         if (getPermission() && ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
             manager.openCamera(ids[0], onCameraOpen, null);
     }
-
-    private CameraDevice.StateCallback onCameraOpen = new CameraDevice.StateCallback() {
-        @Override
-        public void onOpened(@NonNull final CameraDevice camera) {
-            try {
-                startCapture(camera);
-            } catch (CameraAccessException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onDisconnected(@NonNull CameraDevice camera) {
-        }
-
-        @Override
-        public void onError(@NonNull CameraDevice camera, int error) {
-        }
-    };
 
     private void startCapture(CameraDevice camera) throws CameraAccessException {
         device = camera;
@@ -117,8 +127,26 @@ class Camera {
         camera.createCaptureSession(surfaces, callback, null);
     }
 
+    private Timer timer;
+
+    private void startPreview() throws CameraAccessException {
+        final CaptureRequest captureRequest = getPreviewRequest();
+
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                capture(captureRequest);
+            }
+        }, 0, 1000 / 60);
+    }
+
     private CaptureRequest getPreviewRequest() throws CameraAccessException {
-        CaptureRequest.Builder captureRequestBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+        int type = CameraDevice.TEMPLATE_PREVIEW;
+//        if (state.getExposureMode() == Mode.MANUAL || state.getFocusMode() == Mode.MANUAL)
+//            type = CameraDevice.TEMPLATE_MANUAL;
+
+        CaptureRequest.Builder captureRequestBuilder = device.createCaptureRequest(type);
         captureRequestBuilder.addTarget(surface);
 
         state.applyToRequestBuilder(captureRequestBuilder);
@@ -126,17 +154,15 @@ class Camera {
         return captureRequestBuilder.build();
     }
 
-    private void startPreview() throws CameraAccessException {
-        final CaptureRequest captureRequest = getPreviewRequest();
-
-        Timer t = new Timer();
-        t.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                capture(captureRequest);
-            }
-        }, 0, 1000 / 60);
+    private void stopPreview() {
+        timer.cancel();
     }
+
+    private void restartPreview() throws CameraAccessException {
+        stopPreview();
+        startPreview();
+    }
+
 
     private void capture(CaptureRequest request) {
         try {

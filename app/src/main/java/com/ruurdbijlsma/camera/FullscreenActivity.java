@@ -11,10 +11,11 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
+import com.ruurdbijlsma.camera.Sliders.ExposureSlider;
+import com.ruurdbijlsma.camera.Sliders.ValueSlider;
+
 import java.util.Objects;
-
-//// TODO: 11-3-2017 Een scrollview per valueslider instance maken zodat hij de positie onthoud. Die scrollview kan dan in framelayout ofzo. Als dit niet kan, scrollpositie onthouden en weer terug zetten als hij wordt geactiveerd
-
+//// TODO: 11-3-2017 camera crasht als de exposure time > 0.5s word, de exposureslider update de preview of heel langzaam of helemaal niet
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -25,16 +26,11 @@ public class FullscreenActivity extends AppCompatActivity {
     FrameLayout sliderLayout;
     Camera camera;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fullscreen);
-
+    private void initialize() {
         createSliders();
 
-
         sliderLayout = (FrameLayout) findViewById(R.id.valueSlider);
-        sliderLayout.addView(sliders[0].getScrollView());
+        sliderLayout.addView(sliders[0]);
 
         captureButton = (ImageButton) findViewById(R.id.capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
@@ -47,38 +43,15 @@ public class FullscreenActivity extends AppCompatActivity {
     }
 
     public void createSliders() {
-        sliders = new ValueSlider[1];
-        sliders[0] = new ValueSlider(this, new String[]{
-                "1/6000",
-                "1/4000",
-                "1/2000",
-                "1/1000",
-                "1/500",
-                "1/250",
-                "1/125",
-                "1/60",
-                "1/30",
-                "1/15",
-                "1/8",
-                "1/4",
-                "1/2",
-                "1",
-                "2",
-                "4",
-                "8",
-                "15",
-                "30",
-        }) {
-            @Override
-            void onValueChange(String newValue, String oldValue) {
-                super.onValueChange(newValue, oldValue);
-            }
-
-            @Override
-            void onScrollEnd(float scrollPosition) {
-                super.onScrollEnd(scrollPosition);
-            }
+        sliders = new ValueSlider[]{
+                new ExposureSlider(this, camera)
         };
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_fullscreen);
     }
 
     @Override
@@ -107,6 +80,7 @@ public class FullscreenActivity extends AppCompatActivity {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 camera = new Camera(context, holder.getSurface());
+                initialize();
             }
 
             @Override

@@ -1,4 +1,4 @@
-package com.ruurdbijlsma.camera;
+package com.ruurdbijlsma.camera.Sliders;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -16,61 +16,62 @@ import java.util.TimerTask;
  * Gemaakt door ruurd op 11-3-2017.
  */
 
-class ValueSlider {
-    private String[] values;
-    private final Context context;
-    private ScrollView scrollView;
+public class ValueSlider extends ScrollView {
     private static final String TAG = "Camera";
+    private final Context context;
+    private String[] values;
     private String currentValue;
     private float scrollEndedAt = 0;
 
-    ValueSlider(final Context context, String[] values) {
+    public ValueSlider(final Context context, String[] values) {
+        super(context);
         this.values = values;
         this.context = context;
-        this.scrollView = new ScrollView(context) {
-            @Override
-            protected void onScrollChanged(int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                final float scrollPosition = getScrollPosition(scrollY);
-                String newValue = getSelectedValue(scrollPosition);
-                if (!Objects.equals(newValue, currentValue)) {
-                    onValueChange(newValue, currentValue);
-                    currentValue = newValue;
-                }
-                onScroll(scrollPosition);
-
-                Timer t = new Timer();
-                t.schedule(new TimerTask() {
-                    @Override
-                    public synchronized void run() {
-                        float newScrollPosition = getScrollPosition(scrollView.getScrollY());
-                        if (scrollPosition == newScrollPosition && newScrollPosition != scrollEndedAt) {
-                            scrollEndedAt = newScrollPosition;
-                            onScrollEnd(newScrollPosition);
-                        }
-                    }
-                }, 100);
-            }
-        };
         this.currentValue = values[0];
 
-        scrollView.setVerticalScrollBarEnabled(false);
-        scrollView.addView(getLinearLayout());
+        setVerticalScrollBarEnabled(false);
+        addView(getLinearLayout());
     }
 
-    void onScrollEnd(float scrollPosition) {
-        Log.d(TAG, "SCROLL ENDED " + scrollPosition);
+    @Override
+    protected void onScrollChanged(int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+        final float scrollPosition = getScrollPosition(scrollY);
+        String newValue = getSelectedValue(scrollPosition);
+        if (!Objects.equals(newValue, currentValue)) {
+            onValueChange(newValue, currentValue);
+            currentValue = newValue;
+        }
+        onScroll(scrollPosition);
+
+        Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            @Override
+            public synchronized void run() {
+                float newScrollPosition = getScrollPosition(getScrollY());
+                if (scrollPosition == newScrollPosition && newScrollPosition != scrollEndedAt) {
+                    scrollEndedAt = newScrollPosition;
+                    onScrollEnd(newScrollPosition);
+                }
+            }
+        }, 100);
     }
 
-    void onScroll(float scrollPosition) {
-
+    public float stringToValue(String string) {
+        return Float.parseFloat(string);
     }
 
-    ScrollView getScrollView() {
-        return scrollView;
+    public void onScrollEnd(float scrollPosition) {
     }
 
-    void onValueChange(String newValue, String oldValue) {
+    public void onScroll(float scrollPosition) {
+    }
+
+    public void onValueChange(String newValue, String oldValue) {
         Log.d(TAG, newValue);
+    }
+
+    public String getSelectedValue() {
+        return getSelectedValue(getScrollPosition());
     }
 
     String getSelectedValue(float scrollPosition) {
@@ -84,12 +85,16 @@ class ValueSlider {
 
     float getNumericalValue(float min, float max) {
         float length = max - min;
-        float value = length * getScrollPosition(scrollView.getScrollY());
+        float value = length * getScrollPosition(getScrollY());
         return min + value;
     }
 
+    public float getScrollPosition() {
+        return getScrollPosition(getScrollY());
+    }
+
     float getScrollPosition(int scrollY) {
-        float maxScrollPosition = scrollView.getChildAt(0).getHeight() - scrollView.getHeight();
+        float maxScrollPosition = getChildAt(0).getHeight() - getHeight();
         float scrollPosition = scrollY / maxScrollPosition;
         return scrollPosition > 1 ? 1 : scrollPosition < 0 ? 0 : scrollPosition;
     }
@@ -115,7 +120,7 @@ class ValueSlider {
         int containerHeight = dpToPx(220);
         int requiredPadding = containerHeight / 2 - textViewHeight;
 
-        layout.setPadding(0, requiredPadding, 0,requiredPadding);
+        layout.setPadding(0, requiredPadding, 0, requiredPadding);
 
         return layout;
     }

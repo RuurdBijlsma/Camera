@@ -7,35 +7,38 @@ import android.hardware.camera2.CaptureRequest;
  */
 
 
-class CameraState {
-    Mode exposureMode;
-    Mode focusMode;
-    Mode whiteBalanceMode;
+public class CameraState {
+    private Mode exposureMode;
+    private Mode focusMode;
+    private Mode whiteBalanceMode;
 
-    long exposureTime;
+    private float exposureTime;
     private float focusDistance;
 
-    CameraState() {
+    public CameraState() {
         exposureMode = Mode.AUTO;
         focusMode = Mode.AUTO;
-        whiteBalanceMode=Mode.MANUAL;
+        whiteBalanceMode = Mode.AUTO;
 
-        exposureTime = (long) (0.01 * 1000000000);
-        setFocusDistanceInMeters(0.01f);
+        exposureTime = 0.01f;
+        focusDistance = 1;
     }
 
-    float getFocusDistanceInMeters() {
+    public float getFocusDistanceInMeters() {
         return 1 / focusDistance;
     }
 
-    void setFocusDistanceInMeters(float focusDistance) {
+    public void setFocusDistanceInMeters(float focusDistance) {
         this.focusDistance = 1 / focusDistance;
+        focusMode = Mode.MANUAL;
+        onChange();
     }
 
     void applyToRequestBuilder(CaptureRequest.Builder request) {
         if (exposureMode == Mode.MANUAL) {
             request.set(CaptureRequest.CONTROL_AE_MODE, 0);
-            request.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposureTime);
+            long nanoseconds =(long) (exposureTime * 1000000000);
+            request.set(CaptureRequest.SENSOR_EXPOSURE_TIME, nanoseconds);
         }
 
         if (focusMode == Mode.MANUAL) {
@@ -46,5 +49,26 @@ class CameraState {
         if (whiteBalanceMode == Mode.MANUAL) {
             request.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_FLUORESCENT);
         }
+    }
+
+    public void onChange() {
+    }
+
+    public float getExposureTime() {
+        return exposureTime;
+    }
+
+    public void setExposureTime(float exposureTime) {
+        this.exposureTime = exposureTime;
+        exposureMode = Mode.MANUAL;
+        onChange();
+    }
+
+    public Mode getExposureMode() {
+        return exposureMode;
+    }
+
+    public Mode getFocusMode() {
+        return focusMode;
     }
 }
