@@ -30,16 +30,16 @@
         android:background="@android:color/transparent"
         app:srcCompat="@mipmap/ic_launcher" />
 
-    <ScrollView
+    <FrameLayout
         android:id="@+id/valueSlider"
-        android:layout_width="100dp"
-        android:layout_height="300dp"
+        android:layout_width="80dp"
+        android:layout_height="220dp"
         android:layout_centerVertical="true"
         android:layout_marginEnd="7dp"
         android:layout_toStartOf="@+id/capture"
         android:scrollbars="none">
 
-    </ScrollView>
+    </FrameLayout>
 
 
 </RelativeLayout>

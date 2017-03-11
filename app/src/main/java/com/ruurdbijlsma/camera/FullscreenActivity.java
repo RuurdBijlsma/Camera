@@ -8,8 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ScrollView;
 
 import java.util.Objects;
 
@@ -20,8 +20,9 @@ import java.util.Objects;
  * status bar and navigation/system bar) with user interaction.
  */
 public class FullscreenActivity extends AppCompatActivity {
-    ImageButton search;
-    ScrollView scrollView;
+    ImageButton captureButton;
+    ValueSlider[] sliders;
+    FrameLayout sliderLayout;
     Camera camera;
 
     @Override
@@ -29,29 +30,55 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
-        scrollView = (ScrollView) findViewById(R.id.valueSlider);
-        ValueSlider valueSlider = new ValueSlider(this, scrollView, new String[]{
-                "HOI1",
-                "HOI2",
-                "HOI3",
-                "HOI4",
-                "HOI5",
-                "HOI6",
-                "HOI7",
-                "HOI8",
-                "HOI9",
-                "HOI10",
-                "HOI11",
-        });
+        createSliders();
 
-        search = (ImageButton) findViewById(R.id.capture);
-        search.setOnClickListener(new View.OnClickListener() {
+
+        sliderLayout = (FrameLayout) findViewById(R.id.valueSlider);
+        sliderLayout.addView(sliders[0].getScrollView());
+
+        captureButton = (ImageButton) findViewById(R.id.capture);
+        captureButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (camera.isReady()) {
 
                 }
             }
         });
+    }
+
+    public void createSliders() {
+        sliders = new ValueSlider[1];
+        sliders[0] = new ValueSlider(this, new String[]{
+                "1/6000",
+                "1/4000",
+                "1/2000",
+                "1/1000",
+                "1/500",
+                "1/250",
+                "1/125",
+                "1/60",
+                "1/30",
+                "1/15",
+                "1/8",
+                "1/4",
+                "1/2",
+                "1",
+                "2",
+                "4",
+                "8",
+                "15",
+                "30",
+        }) {
+            @Override
+            void onValueChange(String newValue, String oldValue) {
+                super.onValueChange(newValue, oldValue);
+            }
+
+            @Override
+            void onScrollEnd(float scrollPosition) {
+                super.onScrollEnd(scrollPosition);
+            }
+        };
     }
 
     @Override
