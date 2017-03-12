@@ -145,8 +145,6 @@ public class Camera {
         }
     }
 
-    private ArrayList<Timer> timers = new ArrayList<>();
-    private ArrayList<TimerTask> timerTasks = new ArrayList<>();
     private SingleTimer singleTimer = SingleTimer.getInstance();
 
     private void startPreview() throws CameraAccessException {
