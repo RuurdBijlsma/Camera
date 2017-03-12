@@ -87,6 +87,6 @@ public class ExposureSlider extends ValueSlider {
     @Override
     public void onScrollEnd(float scrollPosition) {
         String value = getSelectedValue(scrollPosition);
-        applyToCamera(value);
+//        applyToCamera(value);
     }
 }

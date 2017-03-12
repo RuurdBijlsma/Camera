@@ -56,7 +56,7 @@ public class FocusSlider extends ValueSlider {
     }
 
     private void applyToCamera(String value) {
-        float distance = stringToValue(value);
+        final float distance = stringToValue(value);
         camera.state.setFocusDistanceInMeters(distance);
     }
 
@@ -74,7 +74,7 @@ public class FocusSlider extends ValueSlider {
 
     @Override
     public void onValueChange(String newValue, String oldValue) {
-        applyToCamera(newValue);
+//        applyToCamera(newValue);
     }
 
     @Override

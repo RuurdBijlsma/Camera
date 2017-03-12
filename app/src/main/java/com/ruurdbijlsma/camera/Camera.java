@@ -38,15 +38,24 @@ public class Camera {
     private Surface surface;
     private CameraDevice device;
     private CameraCaptureSession currentSession;
+    private Thread backgroundThread;
+
     public CameraState state = new CameraState() {
         @Override
         public void onChange() {
-            if (isReady())
-                try {
-                    restartPreview();
-                } catch (CameraAccessException e) {
-                    e.printStackTrace();
-                }
+            if (isReady()) {
+                backgroundThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            restartPreview();
+                        } catch (CameraAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                backgroundThread.start();
+            }
         }
     };
 
@@ -136,8 +145,9 @@ public class Camera {
         }
     }
 
-    private Timer timer;
-    private TimerTask timerTask;
+    private ArrayList<Timer> timers = new ArrayList<>();
+    private ArrayList<TimerTask> timerTasks = new ArrayList<>();
+    private SingleTimer singleTimer = SingleTimer.getInstance();
 
     private void startPreview() throws CameraAccessException {
         final CaptureRequest captureRequest = getPreviewRequest();
@@ -146,14 +156,22 @@ public class Camera {
         msBetweenFrames = Math.max(LowerMsLimit, msBetweenFrames);
         msBetweenFrames = Math.min(UpperMsLimit, msBetweenFrames);
 
-        timer = new Timer();
-        timerTask = new TimerTask() {
+        singleTimer.start(new TimerTask() {
             @Override
             public void run() {
                 capture(captureRequest);
             }
-        };
-        timer.scheduleAtFixedRate(timerTask, 0, msBetweenFrames);
+
+            @Override
+            public boolean cancel() {
+                try {
+                    currentSession.abortCaptures();
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+                return super.cancel();
+            }
+        }, msBetweenFrames);
     }
 
     private CaptureRequest getPreviewRequest() throws CameraAccessException {
@@ -169,15 +187,7 @@ public class Camera {
         return captureRequestBuilder.build();
     }
 
-    private void stopPreview() throws CameraAccessException {
-        timerTask.cancel();
-        timer.cancel();
-        timer.purge();
-        currentSession.abortCaptures();
-    }
-
     private void restartPreview() throws CameraAccessException {
-        stopPreview();
         startPreview();
     }
 
