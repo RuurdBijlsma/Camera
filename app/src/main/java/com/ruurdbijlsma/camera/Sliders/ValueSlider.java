@@ -33,6 +33,21 @@ public class ValueSlider extends ScrollView {
         addView(getLinearLayout());
     }
 
+    public ValueSlider(final Context context) {
+        super(context);
+        this.context = context;
+        setVerticalScrollBarEnabled(false);
+    }
+
+    public void setValues(String[] values) {
+        this.values = values;
+
+        if (getChildAt(0) != null)
+            removeAllViews();
+
+        addView(getLinearLayout());
+    }
+
     @Override
     protected void onScrollChanged(int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
         final float scrollPosition = getScrollPosition(scrollY);

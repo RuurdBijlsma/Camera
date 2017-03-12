@@ -12,10 +12,12 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.ruurdbijlsma.camera.Sliders.ExposureSlider;
+import com.ruurdbijlsma.camera.Sliders.FocusSlider;
 import com.ruurdbijlsma.camera.Sliders.ValueSlider;
 
 import java.util.Objects;
-//// TODO: 11-3-2017 camera crasht als de exposure time > 0.5s word, de exposureslider update de preview of heel langzaam of helemaal niet
+//// TODO: 11-3-2017 Slider changes in background thread doen om lag te voorkomen in ui thread
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -30,7 +32,7 @@ public class FullscreenActivity extends AppCompatActivity {
         createSliders();
 
         sliderLayout = (FrameLayout) findViewById(R.id.valueSlider);
-        sliderLayout.addView(sliders[0]);
+        sliderLayout.addView(sliders[1]);
 
         captureButton = (ImageButton) findViewById(R.id.capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
@@ -44,7 +46,8 @@ public class FullscreenActivity extends AppCompatActivity {
 
     public void createSliders() {
         sliders = new ValueSlider[]{
-                new ExposureSlider(this, camera)
+                new ExposureSlider(this, camera),
+                new FocusSlider(this, camera)
         };
     }
 
@@ -60,11 +63,11 @@ public class FullscreenActivity extends AppCompatActivity {
         if (hasFocus)
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             );
     }
 

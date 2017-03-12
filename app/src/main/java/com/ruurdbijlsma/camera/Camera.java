@@ -10,6 +10,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Size;
 import android.view.Surface;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -27,6 +29,9 @@ import java.util.TimerTask;
  */
 
 public class Camera {
+    private final int LowerMsLimit = 1000 / 60;
+    private final int UpperMsLimit = 1000 / 4;
+
     private CameraManager manager;
     private String[] ids;
     private Activity activity;
@@ -123,22 +128,32 @@ public class Camera {
             }
         };
 
-        //if (isHardwareLevelSupported(characteristics, CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL))
-        camera.createCaptureSession(surfaces, callback, null);
+        if (isHardwareLevelSupported(characteristics, CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL))
+            camera.createCaptureSession(surfaces, callback, null);
+        else {
+            CharSequence cs = "Camera2 not fully supported on this device";
+            Toast.makeText(activity.getApplicationContext(), cs, Toast.LENGTH_LONG).show();
+        }
     }
 
     private Timer timer;
+    private TimerTask timerTask;
 
     private void startPreview() throws CameraAccessException {
         final CaptureRequest captureRequest = getPreviewRequest();
 
+        int msBetweenFrames = (int) (state.getExposureTime() * 1000);
+        msBetweenFrames = Math.max(LowerMsLimit, msBetweenFrames);
+        msBetweenFrames = Math.min(UpperMsLimit, msBetweenFrames);
+
         timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+        timerTask = new TimerTask() {
             @Override
             public void run() {
                 capture(captureRequest);
             }
-        }, 0, 1000 / 60);
+        };
+        timer.scheduleAtFixedRate(timerTask, 0, msBetweenFrames);
     }
 
     private CaptureRequest getPreviewRequest() throws CameraAccessException {
@@ -154,8 +169,11 @@ public class Camera {
         return captureRequestBuilder.build();
     }
 
-    private void stopPreview() {
+    private void stopPreview() throws CameraAccessException {
+        timerTask.cancel();
         timer.cancel();
+        timer.purge();
+        currentSession.abortCaptures();
     }
 
     private void restartPreview() throws CameraAccessException {

@@ -11,7 +11,7 @@ import java.util.HashMap;
  */
 
 public class ExposureSlider extends ValueSlider {
-    private HashMap stringToValue = new HashMap() {{
+    private HashMap stringToValueMap = new HashMap() {{
         put("1/6000", 0.000166666667);
         put("1/4000", 0.00025);
         put("1/2000", 0.0005);
@@ -36,7 +36,9 @@ public class ExposureSlider extends ValueSlider {
     private Camera camera;
 
     public ExposureSlider(Context context, Camera camera) {
-        super(context, new String[]{
+        super(context);
+
+        setValues(new String[]{
                 "1/6000",
                 "1/4000",
                 "1/2000",
@@ -61,15 +63,30 @@ public class ExposureSlider extends ValueSlider {
         this.camera = camera;
     }
 
+    private void applyToCamera(String value){
+        float time = stringToValue(value);
+        camera.state.setExposureTime(time);
+    }
+
     @Override
     public float stringToValue(String string) {
-        double d = (double) stringToValue.get(string);
-        return (float) (d);
+        Object value = stringToValueMap.get(string);
+        float result = 0;
+        if (value instanceof Integer)
+            result = (float) (int) value;
+        if (value instanceof Double)
+            result = (float) (double) value;
+        return result;
     }
 
     @Override
     public void onValueChange(String newValue, String oldValue) {
-        float time = stringToValue(newValue);
-        camera.state.setExposureTime(time);
+        applyToCamera(newValue);
+    }
+
+    @Override
+    public void onScrollEnd(float scrollPosition) {
+        String value = getSelectedValue(scrollPosition);
+        applyToCamera(value);
     }
 }
