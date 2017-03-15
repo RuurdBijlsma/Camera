@@ -16,12 +16,12 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -157,6 +157,7 @@ public class Camera {
         singleTimer.start(new TimerTask() {
             @Override
             public void run() {
+                Log.d("DEBUG", "Loop: " + String.valueOf(captureRequest.get(CaptureRequest.SENSOR_SENSITIVITY)));
                 capture(captureRequest);
             }
 

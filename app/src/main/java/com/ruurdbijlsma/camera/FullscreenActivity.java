@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 
 import com.ruurdbijlsma.camera.Sliders.ExposureSlider;
 import com.ruurdbijlsma.camera.Sliders.FocusSlider;
+import com.ruurdbijlsma.camera.Sliders.ISOSlider;
 import com.ruurdbijlsma.camera.Sliders.ValueSlider;
 
 import java.util.Objects;
@@ -32,7 +33,7 @@ public class FullscreenActivity extends AppCompatActivity {
         createSliders();
 
         sliderLayout = (FrameLayout) findViewById(R.id.valueSlider);
-        sliderLayout.addView(sliders[1]);
+        sliderLayout.addView(sliders[2]);
 
         captureButton = (ImageButton) findViewById(R.id.capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
@@ -47,7 +48,8 @@ public class FullscreenActivity extends AppCompatActivity {
     public void createSliders() {
         sliders = new ValueSlider[]{
                 new ExposureSlider(this, camera),
-                new FocusSlider(this, camera)
+                new FocusSlider(this, camera),
+                new ISOSlider(this, camera),
         };
     }
 
