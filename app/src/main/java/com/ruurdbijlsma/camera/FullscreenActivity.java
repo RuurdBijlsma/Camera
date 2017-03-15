@@ -15,6 +15,7 @@ import com.ruurdbijlsma.camera.Sliders.ExposureSlider;
 import com.ruurdbijlsma.camera.Sliders.FocusSlider;
 import com.ruurdbijlsma.camera.Sliders.ISOSlider;
 import com.ruurdbijlsma.camera.Sliders.ValueSlider;
+import com.ruurdbijlsma.camera.Sliders.WhiteBalanceSlider;
 
 import java.util.Objects;
 //// TODO: 11-3-2017 Slider changes in background thread doen om lag te voorkomen in ui thread
@@ -33,7 +34,7 @@ public class FullscreenActivity extends AppCompatActivity {
         createSliders();
 
         sliderLayout = (FrameLayout) findViewById(R.id.valueSlider);
-        sliderLayout.addView(sliders[2]);
+        sliderLayout.addView(sliders[3]);
 
         captureButton = (ImageButton) findViewById(R.id.capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
@@ -50,6 +51,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 new ExposureSlider(this, camera),
                 new FocusSlider(this, camera),
                 new ISOSlider(this, camera),
+                new WhiteBalanceSlider(this, camera),
         };
     }
 

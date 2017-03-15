@@ -157,7 +157,7 @@ public class Camera {
         singleTimer.start(new TimerTask() {
             @Override
             public void run() {
-                Log.d("DEBUG", "Loop: " + String.valueOf(captureRequest.get(CaptureRequest.SENSOR_SENSITIVITY)));
+                Log.d("DEBUG", "Loop: " + String.valueOf(captureRequest.get(CaptureRequest.CONTROL_AWB_MODE)));
                 capture(captureRequest);
             }
 

@@ -32,7 +32,7 @@
 
     <FrameLayout
         android:id="@+id/valueSlider"
-        android:layout_width="100dp"
+        android:layout_width="150dp"
         android:layout_height="220dp"
         android:layout_centerVertical="true"
         android:layout_marginEnd="7dp"

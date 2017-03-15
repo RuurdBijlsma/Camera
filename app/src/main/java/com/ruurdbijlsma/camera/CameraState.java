@@ -15,6 +15,7 @@ public class CameraState {
     private float exposureTime;
     private float focusDistance;
     private float ISO;
+    private int whiteBalance;
 
     public CameraState() {
         exposureMode = Mode.AUTO;
@@ -24,6 +25,7 @@ public class CameraState {
         exposureTime = 0.01f;
         focusDistance = 1;
         ISO = 800;
+        whiteBalance = CaptureRequest.CONTROL_AWB_MODE_AUTO;
     }
 
     public float getFocusDistanceInMeters() {
@@ -49,13 +51,13 @@ public class CameraState {
         }
 
         if (exposureMode == Mode.MANUAL) {
-            int isoValue = (int)ISO;
+            int isoValue = (int) ISO;
 //            request.set(CaptureRequest.CONTROL_MODE, 0);
             request.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
         }
 
         if (whiteBalanceMode == Mode.MANUAL) {
-            request.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_FLUORESCENT);
+            request.set(CaptureRequest.CONTROL_AWB_MODE, whiteBalance);
         }
     }
 
@@ -75,6 +77,12 @@ public class CameraState {
     public void setISO(float ISO) {
         this.ISO = ISO;
         exposureMode = Mode.MANUAL;
+        onChange();
+    }
+
+    public void setWhiteBalance(int whiteBalance) {
+        this.whiteBalance = whiteBalance;
+        whiteBalanceMode = Mode.MANUAL;
         onChange();
     }
 
