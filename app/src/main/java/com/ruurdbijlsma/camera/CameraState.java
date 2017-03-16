@@ -1,6 +1,9 @@
 package com.ruurdbijlsma.camera;
 
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+import android.view.Surface;
 
 /**
  * Gemaakt door ruurd op 10-3-2017.
@@ -59,6 +62,18 @@ public class CameraState {
         if (whiteBalanceMode == Mode.MANUAL) {
             request.set(CaptureRequest.CONTROL_AWB_MODE, whiteBalance);
         }
+    }
+
+
+    CaptureRequest getPreviewRequest(CameraDevice device, Surface surface) throws CameraAccessException {
+        int type = CameraDevice.TEMPLATE_PREVIEW;
+
+        CaptureRequest.Builder captureRequestBuilder = device.createCaptureRequest(type);
+        captureRequestBuilder.addTarget(surface);
+
+        applyToRequestBuilder(captureRequestBuilder);
+
+        return captureRequestBuilder.build();
     }
 
     public void onChange() {

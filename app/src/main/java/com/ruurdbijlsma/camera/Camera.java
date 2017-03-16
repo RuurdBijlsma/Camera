@@ -16,13 +16,11 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.TimerTask;
 
 /**
  * Gemaakt door ruurd op 10-3-2017.
@@ -48,7 +46,7 @@ public class Camera {
                     @Override
                     public void run() {
                         try {
-                            restartPreview();
+                            startPreview();
                         } catch (CameraAccessException e) {
                             e.printStackTrace();
                         }
@@ -145,58 +143,9 @@ public class Camera {
         }
     }
 
-    private SingleTimer singleTimer = SingleTimer.getInstance();
-
     private void startPreview() throws CameraAccessException {
-        final CaptureRequest captureRequest = getPreviewRequest();
-
-        int msBetweenFrames = (int) (state.getExposureTime() * 1000);
-        msBetweenFrames = Math.max(LowerMsLimit, msBetweenFrames);
-        msBetweenFrames = Math.min(UpperMsLimit, msBetweenFrames);
-
-        singleTimer.start(new TimerTask() {
-            @Override
-            public void run() {
-                Log.d("DEBUG", "Loop: " + String.valueOf(captureRequest.get(CaptureRequest.CONTROL_AWB_MODE)));
-                capture(captureRequest);
-            }
-
-            @Override
-            public boolean cancel() {
-                try {
-                    currentSession.abortCaptures();
-                } catch (CameraAccessException e) {
-                    e.printStackTrace();
-                }
-                return super.cancel();
-            }
-        }, msBetweenFrames);
-    }
-
-    private CaptureRequest getPreviewRequest() throws CameraAccessException {
-        int type = CameraDevice.TEMPLATE_PREVIEW;
-//        if (state.getExposureMode() == Mode.MANUAL || state.getFocusMode() == Mode.MANUAL)
-//            type = CameraDevice.TEMPLATE_MANUAL;
-
-        CaptureRequest.Builder captureRequestBuilder = device.createCaptureRequest(type);
-        captureRequestBuilder.addTarget(surface);
-
-        state.applyToRequestBuilder(captureRequestBuilder);
-
-        return captureRequestBuilder.build();
-    }
-
-    private void restartPreview() throws CameraAccessException {
-        startPreview();
-    }
-
-
-    private void capture(CaptureRequest request) {
-        try {
-            currentSession.capture(request, null, null);
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
+        CaptureRequest request = state.getPreviewRequest(device, surface);
+        currentSession.setRepeatingRequest(request, null, null);
     }
 
     private Size getScreenSize() {

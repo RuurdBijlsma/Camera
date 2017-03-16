@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,6 +26,7 @@ public class ValueSlider extends ScrollView {
 
     public ValueSlider(final Context context, String[] values) {
         super(context);
+        Arrays.sort(values);
         this.values = values;
         this.context = context;
         this.currentValue = values[0];
@@ -37,15 +39,6 @@ public class ValueSlider extends ScrollView {
         super(context);
         this.context = context;
         setVerticalScrollBarEnabled(false);
-    }
-
-    public void setValues(String[] values) {
-        this.values = values;
-
-        if (getChildAt(0) != null)
-            removeAllViews();
-
-        addView(getLinearLayout());
     }
 
     @Override

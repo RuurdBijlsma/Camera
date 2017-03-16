@@ -34,7 +34,7 @@ public class FullscreenActivity extends AppCompatActivity {
         createSliders();
 
         sliderLayout = (FrameLayout) findViewById(R.id.valueSlider);
-        sliderLayout.addView(sliders[3]);
+        sliderLayout.addView(sliders[1]);
 
         captureButton = (ImageButton) findViewById(R.id.capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
