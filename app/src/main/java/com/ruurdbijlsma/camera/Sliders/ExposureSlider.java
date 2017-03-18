@@ -5,6 +5,7 @@ import android.content.Context;
 import com.ruurdbijlsma.camera.Camera;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Gemaakt door ruurd op 11-3-2017.
@@ -12,7 +13,7 @@ import java.util.HashMap;
 
 public class ExposureSlider extends CameraStringSlider {
     public ExposureSlider(Context context, Camera camera) {
-        super(context, camera, new HashMap() {{
+        super(context, camera, new LinkedHashMap() {{
             put("1/6000", 0.000166666667);
             put("1/4000", 0.00025);
             put("1/2000", 0.0005);

@@ -5,6 +5,7 @@ import android.content.Context;
 import com.ruurdbijlsma.camera.Camera;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Gemaakt door ruurd op 12-3-2017.
@@ -12,7 +13,7 @@ import java.util.HashMap;
 
 public class FocusSlider extends CameraStringSlider {
     public FocusSlider(Context context, Camera camera) {
-        super(context, camera, new HashMap() {{
+        super(context, camera, new LinkedHashMap() {{
             put("Infinity", 1000000);
             put("5m", 5);
             put("4m", 4);

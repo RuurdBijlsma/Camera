@@ -5,7 +5,7 @@ import android.hardware.camera2.CaptureRequest;
 
 import com.ruurdbijlsma.camera.Camera;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Gemaakt door ruurd op 11-3-2017.
@@ -13,16 +13,16 @@ import java.util.HashMap;
 
 public class WhiteBalanceSlider extends CameraStringSlider {
     public WhiteBalanceSlider(Context context, Camera camera) {
-        super(context, camera, new HashMap() {{
-            put("Cloudy", CaptureRequest.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT);
-            put("Warm Fluorescent", CaptureRequest.CONTROL_AWB_MODE_WARM_FLUORESCENT);
-            put("Twilight", CaptureRequest.CONTROL_AWB_MODE_TWILIGHT);
-            put("Shade", CaptureRequest.CONTROL_AWB_MODE_SHADE);
-            put("Incandescent", CaptureRequest.CONTROL_AWB_MODE_INCANDESCENT);
-            put("Daylight", CaptureRequest.CONTROL_AWB_MODE_DAYLIGHT);
-            put("Fluorescent", CaptureRequest.CONTROL_AWB_MODE_FLUORESCENT);
-            put("Off", CaptureRequest.CONTROL_AWB_MODE_OFF);
-            put("Auto", CaptureRequest.CONTROL_AWB_MODE_AUTO);
+        super(context, camera, new LinkedHashMap() {{
+            put("Off", CaptureRequest.CONTROL_AWB_MODE_OFF);//0
+            put("Auto", CaptureRequest.CONTROL_AWB_MODE_AUTO);//1
+            put("Incandescent", CaptureRequest.CONTROL_AWB_MODE_INCANDESCENT);//2
+            put("Fluorescent", CaptureRequest.CONTROL_AWB_MODE_FLUORESCENT);//3
+            put("Warm Fluorescent", CaptureRequest.CONTROL_AWB_MODE_WARM_FLUORESCENT);//4
+            put("Daylight", CaptureRequest.CONTROL_AWB_MODE_DAYLIGHT);//5
+            put("Cloudy", CaptureRequest.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT);//6
+            put("Twilight", CaptureRequest.CONTROL_AWB_MODE_TWILIGHT);//7
+            put("Shade", CaptureRequest.CONTROL_AWB_MODE_SHADE);//8
         }});
     }
 

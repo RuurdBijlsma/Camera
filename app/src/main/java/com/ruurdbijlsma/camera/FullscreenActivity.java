@@ -31,10 +31,8 @@ public class FullscreenActivity extends AppCompatActivity {
     Camera camera;
 
     private void initialize() {
-        createSliders();
-
+        sliders = createSliders();
         sliderLayout = (FrameLayout) findViewById(R.id.valueSlider);
-        sliderLayout.addView(sliders[1]);
 
         captureButton = (ImageButton) findViewById(R.id.capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
@@ -44,10 +42,19 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             }
         });
+
+        setActiveSlider(sliders[0]);
     }
 
-    public void createSliders() {
-        sliders = new ValueSlider[]{
+    void setActiveSlider(ValueSlider slider) {
+        if (sliderLayout.getChildAt(0) != slider) {
+            sliderLayout.removeAllViews();
+            sliderLayout.addView(slider);
+        }
+    }
+
+    public ValueSlider[] createSliders() {
+        return new ValueSlider[]{
                 new ExposureSlider(this, camera),
                 new FocusSlider(this, camera),
                 new ISOSlider(this, camera),
@@ -67,11 +74,11 @@ public class FullscreenActivity extends AppCompatActivity {
         if (hasFocus)
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             );
     }
 

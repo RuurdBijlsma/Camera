@@ -3,6 +3,7 @@ package com.ruurdbijlsma.camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+import android.util.Log;
 import android.view.Surface;
 
 /**
@@ -31,16 +32,6 @@ public class CameraState {
         whiteBalance = CaptureRequest.CONTROL_AWB_MODE_AUTO;
     }
 
-    public float getFocusDistanceInMeters() {
-        return 1 / focusDistance;
-    }
-
-    public void setFocusDistanceInMeters(float focusDistance) {
-        this.focusDistance = 1 / focusDistance;
-        focusMode = Mode.MANUAL;
-        onChange();
-    }
-
     void applyToRequestBuilder(CaptureRequest.Builder request) {
         if (exposureMode == Mode.MANUAL) {
             request.set(CaptureRequest.CONTROL_AE_MODE, 0);
@@ -60,7 +51,9 @@ public class CameraState {
         }
 
         if (whiteBalanceMode == Mode.MANUAL) {
+            request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
             request.set(CaptureRequest.CONTROL_AWB_MODE, whiteBalance);
+            Log.d("DEBUG", String.valueOf(request.get(CaptureRequest.CONTROL_AWB_MODE)));
         }
     }
 
@@ -77,10 +70,6 @@ public class CameraState {
     }
 
     public void onChange() {
-    }
-
-    public float getExposureTime() {
-        return exposureTime;
     }
 
     public void setExposureTime(float exposureTime) {
@@ -101,11 +90,25 @@ public class CameraState {
         onChange();
     }
 
+    public void setFocusDistanceInMeters(float focusDistance) {
+        this.focusDistance = 1 / focusDistance;
+        focusMode = Mode.MANUAL;
+        onChange();
+    }
+
+    public float getFocusDistanceInMeters() {
+        return 1 / focusDistance;
+    }
+
     public Mode getExposureMode() {
         return exposureMode;
     }
 
     public Mode getFocusMode() {
         return focusMode;
+    }
+
+    public float getExposureTime() {
+        return exposureTime;
     }
 }

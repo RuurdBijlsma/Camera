@@ -6,16 +6,18 @@ import com.ruurdbijlsma.camera.Camera;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.SortedMap;
 
 /**
  * Gemaakt door ruurd op 16-3-2017.
  */
 
 public abstract class CameraStringSlider extends CameraValueSlider {
-    private HashMap<String, Double> stringToValueMap;
+    private LinkedHashMap stringToValueMap;
 
-    public CameraStringSlider(Context context, Camera camera, HashMap<String, Double> values) {
-        super(context, camera, values.keySet().toArray(
+    public CameraStringSlider(Context context, Camera camera, LinkedHashMap values) {
+        super(context, camera, (String[]) values.keySet().toArray(
                 new String[values.keySet().size()]
         ));
         stringToValueMap = values;

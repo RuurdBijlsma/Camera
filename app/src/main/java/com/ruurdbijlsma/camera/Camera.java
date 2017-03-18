@@ -13,6 +13,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.ImageReader;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
@@ -21,28 +22,28 @@ import android.view.Surface;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Gemaakt door ruurd op 10-3-2017.
  */
 
 public class Camera {
-    private final int LowerMsLimit = 1000 / 60;
-    private final int UpperMsLimit = 1000 / 4;
-
     private CameraManager manager;
     private String[] ids;
     private Activity activity;
     private Surface surface;
     private CameraDevice device;
     private CameraCaptureSession currentSession;
-    private Thread backgroundThread;
+    private Semaphore cameraLock = new Semaphore(1);
+    private ImageReader imageReader;
 
     public CameraState state = new CameraState() {
         @Override
         public void onChange() {
             if (isReady()) {
-                backgroundThread = new Thread(new Runnable() {
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -51,8 +52,7 @@ public class Camera {
                             e.printStackTrace();
                         }
                     }
-                });
-                backgroundThread.start();
+                }).start();
             }
         }
     };
@@ -61,6 +61,7 @@ public class Camera {
         @Override
         public void onOpened(@NonNull final CameraDevice camera) {
             try {
+                cameraLock.release();
                 startCapture(camera);
             } catch (CameraAccessException e) {
                 e.printStackTrace();
@@ -69,10 +70,19 @@ public class Camera {
 
         @Override
         public void onDisconnected(@NonNull CameraDevice camera) {
+            cameraLock.release();
+            device.close();
+            device = null;
         }
 
         @Override
         public void onError(@NonNull CameraDevice camera, int error) {
+            cameraLock.release();
+            device.close();
+            device = null;
+            if (null != activity) {
+                activity.finish();
+            }
         }
     };
 
@@ -103,8 +113,38 @@ public class Camera {
         manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
 
         ids = manager.getCameraIdList();
-        if (getPermission() && ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
-            manager.openCamera(ids[0], onCameraOpen, null);
+        if (getPermission() && ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            try {
+                if (!cameraLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
+                    throw new RuntimeException("Time out waiting to lock camera opening.");
+                }
+                manager.openCamera(ids[0], onCameraOpen, null);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void close() {
+        try {
+            cameraLock.acquire();
+            if (null != currentSession) {
+                currentSession.close();
+                currentSession = null;
+            }
+            if (null != device) {
+                device.close();
+                device = null;
+            }
+//            if (null != mImageReader) {
+//                mImageReader.close();
+//                mImageReader = null;
+//            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Interrupted while trying to lock camera closing.", e);
+        } finally {
+            cameraLock.release();
+        }
     }
 
     private void startCapture(CameraDevice camera) throws CameraAccessException {

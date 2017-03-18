@@ -26,7 +26,6 @@ public class ValueSlider extends ScrollView {
 
     public ValueSlider(final Context context, String[] values) {
         super(context);
-        Arrays.sort(values);
         this.values = values;
         this.context = context;
         this.currentValue = values[0];
