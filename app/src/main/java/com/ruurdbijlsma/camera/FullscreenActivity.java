@@ -1,7 +1,6 @@
 package com.ruurdbijlsma.camera;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.hardware.camera2.CameraAccessException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,13 +19,17 @@ import com.ruurdbijlsma.camera.Sliders.WhiteBalanceSlider;
 
 import java.util.Objects;
 
+///Todo:
+///Elke button binden naar actie
+///Foto maak functionaliteit maken
+///Als shutter time > 0.25s is niet preview updaten met nieuwe shutter time
+///Als shutter time > 0.25s is pizzatje op de shutter knop laten zien om te zien hoe lang de capture nog duurt bij het maken van een foto
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
 public class FullscreenActivity extends AppCompatActivity {
-    ImageButton captureButton;
     ValueSlider[] sliders;
     FrameLayout sliderLayout;
     Camera camera;
@@ -35,7 +38,30 @@ public class FullscreenActivity extends AppCompatActivity {
         sliders = createSliders();
         sliderLayout = (FrameLayout) findViewById(R.id.valueSlider);
 
-        captureButton = (ImageButton) findViewById(R.id.capture);
+        setOnClickListeners();
+
+        setActiveSlider(sliders[0]);
+    }
+
+    public ValueSlider[] createSliders() {
+        return new ValueSlider[]{
+                new WhiteBalanceSlider(this, camera),
+                new FocusSlider(this, camera),
+                new ISOSlider(this, camera),
+                new ExposureSlider(this, camera),
+        };
+    }
+
+    private ImageButton whiteBalanceButton;
+    private ImageButton focusButton;
+    private ImageButton exposureButton;
+    private ImageButton isoButton;
+    private ImageButton shutterButton;
+    private ImageButton aeLockButton;
+
+    void setOnClickListeners() {
+        //Capture Button
+        ImageButton captureButton = (ImageButton) findViewById(R.id.capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (camera.isReady()) {
@@ -44,23 +70,99 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         });
 
-        setActiveSlider(sliders[0]);
+        //Bottom Buttons
+        whiteBalanceButton = (ImageButton) findViewById(R.id.whiteBalanceButton);
+        whiteBalanceButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                setActiveSlider(sliders[0]);
+                deactivateAllButtons();
+                activateWhiteBalanceButton();
+            }
+        });
+        focusButton = (ImageButton) findViewById(R.id.focusButton);
+        focusButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                setActiveSlider(sliders[1]);
+                deactivateAllButtons();
+                activateFocusButton();
+            }
+        });
+        exposureButton = (ImageButton) findViewById(R.id.exposureButton);
+        exposureButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                setActiveSlider(null);
+                deactivateAllButtons();
+                activateExposureButton();
+            }
+        });
+        isoButton = (ImageButton) findViewById(R.id.isoButton);
+        isoButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                setActiveSlider(sliders[2]);
+                deactivateAllButtons();
+                activateIsoButton();
+            }
+        });
+        shutterButton = (ImageButton) findViewById(R.id.shutterButton);
+        shutterButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                setActiveSlider(sliders[3]);
+                deactivateAllButtons();
+                activateShutterButton();
+            }
+        });
+        aeLockButton = (ImageButton) findViewById(R.id.aeLockButton);
+        aeLockButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                setActiveSlider(null);
+                deactivateAllButtons();
+                activateAeLockButton();
+            }
+        });
+    }
+
+    void activateWhiteBalanceButton(){
+        whiteBalanceButton.setImageResource(R.mipmap.wbbuttonactive);
+    }
+
+    void activateFocusButton(){
+        focusButton.setImageResource(R.mipmap.mfbuttonactive);
+    }
+
+    void activateExposureButton(){
+        exposureButton.setImageResource(R.mipmap.expbuttonactive);
+    }
+
+    void activateIsoButton(){
+        isoButton.setImageResource(R.mipmap.isobuttonactive);
+    }
+
+    void activateShutterButton(){
+        shutterButton.setImageResource(R.mipmap.shutterbuttonactive);
+    }
+
+    void activateAeLockButton(){
+        aeLockButton.setImageResource(R.mipmap.aelockbuttonactive);
+    }
+
+    void deactivateAllButtons() {
+        whiteBalanceButton.setImageResource(R.mipmap.wbbutton);
+        focusButton.setImageResource(R.mipmap.mfbutton);
+        exposureButton.setImageResource(R.mipmap.expbutton);
+        isoButton.setImageResource(R.mipmap.isobutton);
+        shutterButton.setImageResource(R.mipmap.shutterbutton);
+        aeLockButton.setImageResource(R.mipmap.aelockbutton);
     }
 
     void setActiveSlider(ValueSlider slider) {
-        if (sliderLayout.getChildAt(0) != slider) {
+        if (slider == null) {
             sliderLayout.removeAllViews();
-            sliderLayout.addView(slider);
+        } else {
+            if (sliderLayout.getChildAt(0) != slider) {
+                sliderLayout.removeAllViews();
+                sliderLayout.addView(slider);
+            }
         }
-    }
-
-    public ValueSlider[] createSliders() {
-        return new ValueSlider[]{
-                new ExposureSlider(this, camera),
-                new FocusSlider(this, camera),
-                new ISOSlider(this, camera),
-                new WhiteBalanceSlider(this, camera),
-        };
     }
 
     @Override

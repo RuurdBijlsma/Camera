@@ -22,13 +22,14 @@
 
     <ImageButton
         android:id="@+id/capture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="15dp"
+        android:layout_marginEnd="14dp"
         android:background="@android:color/transparent"
-        app:srcCompat="@mipmap/ic_launcher" />
+        android:scaleType="centerInside"
+        app:srcCompat="@mipmap/capture" />
 
     <FrameLayout
         android:id="@+id/valueSlider"
@@ -40,6 +41,90 @@
         android:scrollbars="none">
 
     </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="415dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="19dp"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <ImageButton
+            android:id="@+id/whiteBalanceButton"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@+id/valueSlider"
+            android:layout_below="@+id/valueSlider"
+            android:layout_marginEnd="35dp"
+            android:layout_marginTop="0dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            app:srcCompat="@mipmap/wbbutton" />
+
+        <ImageButton
+            android:id="@+id/focusButton"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@+id/valueSlider"
+            android:layout_below="@+id/valueSlider"
+            android:layout_marginEnd="35dp"
+            android:layout_marginTop="0dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            app:srcCompat="@mipmap/mfbutton" />
+
+        <ImageButton
+            android:id="@+id/exposureButton"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@+id/valueSlider"
+            android:layout_below="@+id/valueSlider"
+            android:layout_marginEnd="35dp"
+            android:layout_marginTop="0dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            app:srcCompat="@mipmap/expbutton" />
+
+        <ImageButton
+            android:id="@+id/isoButton"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@+id/valueSlider"
+            android:layout_below="@+id/valueSlider"
+            android:layout_marginEnd="35dp"
+            android:layout_marginTop="0dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            app:srcCompat="@mipmap/isobutton" />
+
+        <ImageButton
+            android:id="@+id/shutterButton"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@+id/valueSlider"
+            android:layout_below="@+id/valueSlider"
+            android:layout_marginEnd="35dp"
+            android:layout_marginTop="0dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            app:srcCompat="@mipmap/shutterbutton" />
+
+        <ImageButton
+            android:id="@+id/aeLockButton"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:layout_alignEnd="@+id/valueSlider"
+            android:layout_below="@+id/valueSlider"
+            android:layout_marginEnd="35dp"
+            android:layout_marginTop="0dp"
+            android:layout_weight="0.02"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            app:srcCompat="@mipmap/aelockbutton" />
+
+    </LinearLayout>
 
 
 </RelativeLayout>
