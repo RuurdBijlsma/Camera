@@ -1,6 +1,7 @@
 package com.ruurdbijlsma.camera;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.hardware.camera2.CameraAccessException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,7 +19,7 @@ import com.ruurdbijlsma.camera.Sliders.ValueSlider;
 import com.ruurdbijlsma.camera.Sliders.WhiteBalanceSlider;
 
 import java.util.Objects;
-//// TODO: 11-3-2017 Slider changes in background thread doen om lag te voorkomen in ui thread
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
