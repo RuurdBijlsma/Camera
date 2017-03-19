@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.ruurdbijlsma.camera.Buttons.ButtonManager;
+import com.ruurdbijlsma.camera.CameraManager.Camera;
 import com.ruurdbijlsma.camera.Sliders.CameraValueSlider;
 import com.ruurdbijlsma.camera.Sliders.ExposureCompensationSlider;
 import com.ruurdbijlsma.camera.Sliders.ExposureSlider;

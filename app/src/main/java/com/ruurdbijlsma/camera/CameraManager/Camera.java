@@ -1,4 +1,4 @@
-package com.ruurdbijlsma.camera;
+package com.ruurdbijlsma.camera.CameraManager;
 
 import android.Manifest;
 import android.app.Activity;
@@ -20,7 +20,8 @@ import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Size;
 import android.view.Surface;
-import android.widget.Toast;
+
+import com.ruurdbijlsma.camera.R;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
@@ -40,7 +41,7 @@ public class Camera {
     private Semaphore cameraLock = new Semaphore(1);
     private ImageReader imageReader;
 
-    public CameraState state = new CameraState() {
+    public CameraStateManager state = new CameraStateManager() {
         @Override
         public void onChange() {
             if (isReady()) {
@@ -98,7 +99,7 @@ public class Camera {
         }
     }
 
-    boolean isReady() {
+    public boolean isReady() {
         return currentSession != null;
     }
 
@@ -230,7 +231,7 @@ public class Camera {
         return optimalSize;
     }
 
-    void permissionGranted() throws CameraAccessException {
+    public void permissionGranted() throws CameraAccessException {
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
             return;
         manager.openCamera(ids[0], onCameraOpen, null);

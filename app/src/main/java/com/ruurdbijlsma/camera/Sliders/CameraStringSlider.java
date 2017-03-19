@@ -2,12 +2,9 @@ package com.ruurdbijlsma.camera.Sliders;
 
 import android.content.Context;
 
-import com.ruurdbijlsma.camera.Camera;
+import com.ruurdbijlsma.camera.CameraManager.Camera;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.SortedMap;
 
 /**
  * Gemaakt door ruurd op 16-3-2017.

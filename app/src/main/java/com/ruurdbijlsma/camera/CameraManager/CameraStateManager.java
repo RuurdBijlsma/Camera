@@ -1,4 +1,4 @@
-package com.ruurdbijlsma.camera;
+package com.ruurdbijlsma.camera.CameraManager;
 
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
@@ -6,12 +6,14 @@ import android.hardware.camera2.CaptureRequest;
 import android.util.Log;
 import android.view.Surface;
 
+import com.ruurdbijlsma.camera.Mode;
+
 /**
  * Gemaakt door ruurd op 10-3-2017.
  */
 
 
-public class CameraState {
+public class CameraStateManager {
     private Mode exposureMode;
     private Mode focusMode;
     private Mode whiteBalanceMode;
@@ -22,7 +24,7 @@ public class CameraState {
     private int whiteBalance;
     private int exposureCompensation;
 
-    public CameraState() {
+    public CameraStateManager() {
         exposureMode = Mode.AUTO;
         focusMode = Mode.AUTO;
         whiteBalanceMode = Mode.AUTO;

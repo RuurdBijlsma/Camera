@@ -2,9 +2,8 @@ package com.ruurdbijlsma.camera.Sliders;
 
 import android.content.Context;
 
-import com.ruurdbijlsma.camera.Camera;
+import com.ruurdbijlsma.camera.CameraManager.Camera;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**

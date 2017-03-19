@@ -2,7 +2,7 @@ package com.ruurdbijlsma.camera.Sliders;
 
 import android.content.Context;
 
-import com.ruurdbijlsma.camera.Camera;
+import com.ruurdbijlsma.camera.CameraManager.Camera;
 
 /**
  * Gemaakt door ruurd op 11-3-2017.
