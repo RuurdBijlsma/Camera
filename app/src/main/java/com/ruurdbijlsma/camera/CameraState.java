@@ -119,4 +119,9 @@ public class CameraState {
     public float getExposureTime() {
         return exposureTime;
     }
+
+    public void setExposureMode(Mode exposureMode) {
+        this.exposureMode = exposureMode;
+        onChange();
+    }
 }

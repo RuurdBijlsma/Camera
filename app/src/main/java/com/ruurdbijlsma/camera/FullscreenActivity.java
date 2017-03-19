@@ -40,7 +40,19 @@ public class FullscreenActivity extends AppCompatActivity {
     private void initialize() {
         sliders = createSliders();
         sliderLayout = (FrameLayout) findViewById(R.id.valueSlider);
-        buttonManager = new ButtonManager(this, sliders, sliderLayout);
+        buttonManager = new ButtonManager(this, sliders, sliderLayout) {
+            @Override
+            public void unlockAe() {
+                if (camera.isReady())
+                    camera.state.setExposureMode(Mode.AUTO);
+            }
+
+            @Override
+            public void lockAe() {
+                if (camera.isReady())
+                    camera.state.setExposureMode(Mode.MANUAL);
+            }
+        };
 
         setOnClickListeners();
     }

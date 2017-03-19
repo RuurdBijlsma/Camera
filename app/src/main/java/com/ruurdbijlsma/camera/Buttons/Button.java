@@ -11,7 +11,7 @@ public class Button {
     private ImageButton view;
     private int activeResourceId;
     private int inactiveResourceId;
-    private boolean isActive;
+    public boolean isActive;
 
     public Button(ImageButton view, int inactiveResourceId, int activeResourceId) {
         this.view = view;
@@ -47,5 +47,15 @@ public class Button {
     public void deactivate() {
         view.setImageResource(inactiveResourceId);
         isActive = false;
+    }
+
+    public void disable(){
+        view.setAlpha(0.3f);
+        view.setClickable(false);
+    }
+
+    public void enable(){
+        view.setAlpha(1f);
+        view.setClickable(true);
     }
 }

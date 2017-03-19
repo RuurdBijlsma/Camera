@@ -42,7 +42,34 @@ public class ButtonManager {
         shutterButton = new SliderButton(imageButton, R.mipmap.shutterbutton, R.mipmap.shutterbuttonactive, sliders[4], this);
 
         imageButton = (ImageButton) activity.findViewById(R.id.aeLockButton);
-        aeLockButton = new Button(imageButton, R.mipmap.aelockbutton, R.mipmap.aelockbuttonactive);
+        aeLockButton = new Button(imageButton, R.mipmap.aelockbutton, R.mipmap.aelockbuttonactive) {
+            @Override
+            public void activate() {
+                super.activate();
+                shutterButton.enable();
+                isoButton.enable();
+                exposureButton.disable();
+                lockAe();
+            }
+
+            @Override
+            public void deactivate() {
+                super.deactivate();
+                setActiveSlider(null);
+                shutterButton.disable();
+                isoButton.disable();
+                exposureButton.enable();
+                unlockAe();
+            }
+        };
+
+        aeLockButton.deactivate();
+    }
+
+    public void unlockAe() {
+    }
+
+    public void lockAe() {
     }
 
     void deactivateAllSliderButtons() {

@@ -15,6 +15,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.ImageReader;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Size;
@@ -175,11 +176,11 @@ public class Camera {
             }
         };
 
-        if (isHardwareLevelSupported(characteristics, CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL))
+        if (isHardwareLevelSupported(characteristics, CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)) {
             camera.createCaptureSession(surfaces, callback, null);
-        else {
+        } else {
             CharSequence cs = "Camera2 not fully supported on this device";
-            Toast.makeText(activity.getApplicationContext(), cs, Toast.LENGTH_LONG).show();
+            Snackbar.make(activity.findViewById(R.id.surfaceView), cs, Snackbar.LENGTH_INDEFINITE).show();
         }
     }
 
