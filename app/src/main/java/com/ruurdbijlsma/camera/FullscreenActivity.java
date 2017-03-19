@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
+import com.ruurdbijlsma.camera.Buttons.ButtonManager;
+import com.ruurdbijlsma.camera.Sliders.ExposureCompensationSlider;
 import com.ruurdbijlsma.camera.Sliders.ExposureSlider;
 import com.ruurdbijlsma.camera.Sliders.FocusSlider;
 import com.ruurdbijlsma.camera.Sliders.ISOSlider;
@@ -32,32 +34,26 @@ import java.util.Objects;
 public class FullscreenActivity extends AppCompatActivity {
     ValueSlider[] sliders;
     FrameLayout sliderLayout;
+    ButtonManager buttonManager;
     Camera camera;
 
     private void initialize() {
         sliders = createSliders();
         sliderLayout = (FrameLayout) findViewById(R.id.valueSlider);
+        buttonManager = new ButtonManager(this, sliders, sliderLayout);
 
         setOnClickListeners();
-
-        setActiveSlider(sliders[0]);
     }
 
     public ValueSlider[] createSliders() {
         return new ValueSlider[]{
                 new WhiteBalanceSlider(this, camera),
                 new FocusSlider(this, camera),
+                new ExposureCompensationSlider(this, camera),
                 new ISOSlider(this, camera),
                 new ExposureSlider(this, camera),
         };
     }
-
-    private ImageButton whiteBalanceButton;
-    private ImageButton focusButton;
-    private ImageButton exposureButton;
-    private ImageButton isoButton;
-    private ImageButton shutterButton;
-    private ImageButton aeLockButton;
 
     void setOnClickListeners() {
         //Capture Button
@@ -69,100 +65,6 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             }
         });
-
-        //Bottom Buttons
-        whiteBalanceButton = (ImageButton) findViewById(R.id.whiteBalanceButton);
-        whiteBalanceButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                setActiveSlider(sliders[0]);
-                deactivateAllButtons();
-                activateWhiteBalanceButton();
-            }
-        });
-        focusButton = (ImageButton) findViewById(R.id.focusButton);
-        focusButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                setActiveSlider(sliders[1]);
-                deactivateAllButtons();
-                activateFocusButton();
-            }
-        });
-        exposureButton = (ImageButton) findViewById(R.id.exposureButton);
-        exposureButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                setActiveSlider(null);
-                deactivateAllButtons();
-                activateExposureButton();
-            }
-        });
-        isoButton = (ImageButton) findViewById(R.id.isoButton);
-        isoButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                setActiveSlider(sliders[2]);
-                deactivateAllButtons();
-                activateIsoButton();
-            }
-        });
-        shutterButton = (ImageButton) findViewById(R.id.shutterButton);
-        shutterButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                setActiveSlider(sliders[3]);
-                deactivateAllButtons();
-                activateShutterButton();
-            }
-        });
-        aeLockButton = (ImageButton) findViewById(R.id.aeLockButton);
-        aeLockButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                setActiveSlider(null);
-                deactivateAllButtons();
-                activateAeLockButton();
-            }
-        });
-    }
-
-    void activateWhiteBalanceButton(){
-        whiteBalanceButton.setImageResource(R.mipmap.wbbuttonactive);
-    }
-
-    void activateFocusButton(){
-        focusButton.setImageResource(R.mipmap.mfbuttonactive);
-    }
-
-    void activateExposureButton(){
-        exposureButton.setImageResource(R.mipmap.expbuttonactive);
-    }
-
-    void activateIsoButton(){
-        isoButton.setImageResource(R.mipmap.isobuttonactive);
-    }
-
-    void activateShutterButton(){
-        shutterButton.setImageResource(R.mipmap.shutterbuttonactive);
-    }
-
-    void activateAeLockButton(){
-        aeLockButton.setImageResource(R.mipmap.aelockbuttonactive);
-    }
-
-    void deactivateAllButtons() {
-        whiteBalanceButton.setImageResource(R.mipmap.wbbutton);
-        focusButton.setImageResource(R.mipmap.mfbutton);
-        exposureButton.setImageResource(R.mipmap.expbutton);
-        isoButton.setImageResource(R.mipmap.isobutton);
-        shutterButton.setImageResource(R.mipmap.shutterbutton);
-        aeLockButton.setImageResource(R.mipmap.aelockbutton);
-    }
-
-    void setActiveSlider(ValueSlider slider) {
-        if (slider == null) {
-            sliderLayout.removeAllViews();
-        } else {
-            if (sliderLayout.getChildAt(0) != slider) {
-                sliderLayout.removeAllViews();
-                sliderLayout.addView(slider);
-            }
-        }
     }
 
     @Override

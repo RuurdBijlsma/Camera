@@ -20,6 +20,7 @@ public class CameraState {
     private float focusDistance;
     private float ISO;
     private int whiteBalance;
+    private int exposureCompensation;
 
     public CameraState() {
         exposureMode = Mode.AUTO;
@@ -30,6 +31,7 @@ public class CameraState {
         focusDistance = 1;
         ISO = 800;
         whiteBalance = CaptureRequest.CONTROL_AWB_MODE_AUTO;
+        exposureCompensation = 0;
     }
 
     void applyToRequestBuilder(CaptureRequest.Builder request) {
@@ -46,8 +48,9 @@ public class CameraState {
 
         if (exposureMode == Mode.MANUAL) {
             int isoValue = (int) ISO;
-//            request.set(CaptureRequest.CONTROL_MODE, 0);
             request.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
+        } else {
+            request.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposureCompensation);
         }
 
         if (whiteBalanceMode == Mode.MANUAL) {
@@ -70,6 +73,11 @@ public class CameraState {
     }
 
     public void onChange() {
+    }
+
+    public void setExposureCompensation(int exposureCompensation) {
+        this.exposureCompensation = exposureCompensation;
+        onChange();
     }
 
     public void setExposureTime(float exposureTime) {
