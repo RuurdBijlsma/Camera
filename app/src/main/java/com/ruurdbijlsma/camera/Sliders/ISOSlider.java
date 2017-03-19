@@ -31,7 +31,7 @@ public class ISOSlider extends CameraValueSlider {
         });
     }
 
-    protected void applyToCamera(String value) {
+    public void applyToCamera(String value) {
         float ISO = stringToValue(value);
         camera.state.setISO(ISO);
     }

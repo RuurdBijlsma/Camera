@@ -31,7 +31,7 @@ public class FocusSlider extends CameraStringSlider {
         }});
     }
 
-    protected void applyToCamera(String value) {
+    public void applyToCamera(String value) {
         final float distance = stringToValue(value);
         camera.state.setFocusDistanceInMeters(distance);
     }

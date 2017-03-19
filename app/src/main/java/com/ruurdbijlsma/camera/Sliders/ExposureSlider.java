@@ -36,7 +36,7 @@ public class ExposureSlider extends CameraStringSlider {
         }});
     }
 
-    protected void applyToCamera(String value) {
+    public void applyToCamera(String value) {
         float time = stringToValue(value);
         camera.state.setExposureTime(time);
     }

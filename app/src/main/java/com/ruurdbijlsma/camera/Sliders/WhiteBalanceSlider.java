@@ -26,7 +26,7 @@ public class WhiteBalanceSlider extends CameraStringSlider {
         }});
     }
 
-    protected void applyToCamera(String value) {
+    public void applyToCamera(String value) {
         float balanceMode = stringToValue(value);
         camera.state.setWhiteBalance((int) balanceMode);
     }

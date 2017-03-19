@@ -34,10 +34,11 @@ public class CameraState {
         exposureCompensation = 0;
     }
 
-    void applyToRequestBuilder(CaptureRequest.Builder request) {
+    void applyToRequestBuilder(CaptureRequest.Builder request, float maximumExposureTime) {
         if (exposureMode == Mode.MANUAL) {
             request.set(CaptureRequest.CONTROL_AE_MODE, 0);
-            long nanoseconds = (long) (exposureTime * 1000000000);
+            float expTime = exposureTime > maximumExposureTime ? maximumExposureTime : exposureTime;
+            long nanoseconds = (long) (expTime * 1000000000);
             request.set(CaptureRequest.SENSOR_EXPOSURE_TIME, nanoseconds);
         }
 
@@ -61,13 +62,15 @@ public class CameraState {
     }
 
 
+    private static final float maximumPreviewExposureTime = 0.15f;
+
     CaptureRequest getPreviewRequest(CameraDevice device, Surface surface) throws CameraAccessException {
         int type = CameraDevice.TEMPLATE_PREVIEW;
 
         CaptureRequest.Builder captureRequestBuilder = device.createCaptureRequest(type);
         captureRequestBuilder.addTarget(surface);
 
-        applyToRequestBuilder(captureRequestBuilder);
+        applyToRequestBuilder(captureRequestBuilder, maximumPreviewExposureTime);
 
         return captureRequestBuilder.build();
     }

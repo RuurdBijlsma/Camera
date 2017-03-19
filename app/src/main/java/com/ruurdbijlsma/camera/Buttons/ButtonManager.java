@@ -6,6 +6,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.ruurdbijlsma.camera.R;
+import com.ruurdbijlsma.camera.Sliders.CameraValueSlider;
 import com.ruurdbijlsma.camera.Sliders.ValueSlider;
 
 /**
@@ -22,7 +23,7 @@ public class ButtonManager {
 
     private FrameLayout layout;
 
-    public ButtonManager(Activity activity, ValueSlider[] sliders, FrameLayout layout) {
+    public ButtonManager(Activity activity, CameraValueSlider[] sliders, FrameLayout layout) {
         this.layout = layout;
 
         ImageButton imageButton;
@@ -46,19 +47,12 @@ public class ButtonManager {
             @Override
             public void activate() {
                 super.activate();
-                shutterButton.enable();
-                isoButton.enable();
-                exposureButton.disable();
                 lockAe();
             }
 
             @Override
             public void deactivate() {
                 super.deactivate();
-                setActiveSlider(null);
-                shutterButton.disable();
-                isoButton.disable();
-                exposureButton.enable();
                 unlockAe();
             }
         };
@@ -67,9 +61,18 @@ public class ButtonManager {
     }
 
     public void unlockAe() {
+        setActiveSlider(null);
+        shutterButton.disable();
+        isoButton.disable();
+        exposureButton.enable();
     }
 
     public void lockAe() {
+        shutterButton.enable();
+        isoButton.enable();
+        exposureButton.disable();
+
+        ///Todo: apply all slider values to camera state
     }
 
     void deactivateAllSliderButtons() {

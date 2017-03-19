@@ -19,8 +19,8 @@ public class ExposureCompensationSlider extends CameraValueSlider {
         });
     }
 
-    protected void applyToCamera(String value) {
-        float time = stringToValue(value);
-        camera.state.setExposureTime(time);
+    public void applyToCamera(String value) {
+        float compensation = stringToValue(value);
+        camera.state.setExposureCompensation((int) compensation);
     }
 }

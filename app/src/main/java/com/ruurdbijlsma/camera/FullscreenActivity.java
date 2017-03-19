@@ -12,11 +12,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
 import com.ruurdbijlsma.camera.Buttons.ButtonManager;
+import com.ruurdbijlsma.camera.Sliders.CameraValueSlider;
 import com.ruurdbijlsma.camera.Sliders.ExposureCompensationSlider;
 import com.ruurdbijlsma.camera.Sliders.ExposureSlider;
 import com.ruurdbijlsma.camera.Sliders.FocusSlider;
 import com.ruurdbijlsma.camera.Sliders.ISOSlider;
-import com.ruurdbijlsma.camera.Sliders.ValueSlider;
 import com.ruurdbijlsma.camera.Sliders.WhiteBalanceSlider;
 
 import java.util.Objects;
@@ -32,7 +32,7 @@ import java.util.Objects;
  * status bar and navigation/system bar) with user interaction.
  */
 public class FullscreenActivity extends AppCompatActivity {
-    ValueSlider[] sliders;
+    CameraValueSlider[] sliders;
     FrameLayout sliderLayout;
     ButtonManager buttonManager;
     Camera camera;
@@ -43,12 +43,14 @@ public class FullscreenActivity extends AppCompatActivity {
         buttonManager = new ButtonManager(this, sliders, sliderLayout) {
             @Override
             public void unlockAe() {
+                super.unlockAe();
                 if (camera.isReady())
                     camera.state.setExposureMode(Mode.AUTO);
             }
 
             @Override
             public void lockAe() {
+                super.lockAe();
                 if (camera.isReady())
                     camera.state.setExposureMode(Mode.MANUAL);
             }
@@ -57,8 +59,8 @@ public class FullscreenActivity extends AppCompatActivity {
         setOnClickListeners();
     }
 
-    public ValueSlider[] createSliders() {
-        return new ValueSlider[]{
+    public CameraValueSlider[] createSliders() {
+        return new CameraValueSlider[]{
                 new WhiteBalanceSlider(this, camera),
                 new FocusSlider(this, camera),
                 new ExposureCompensationSlider(this, camera),

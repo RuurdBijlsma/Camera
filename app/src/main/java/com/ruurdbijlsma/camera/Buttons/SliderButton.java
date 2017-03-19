@@ -2,17 +2,17 @@ package com.ruurdbijlsma.camera.Buttons;
 
 import android.widget.ImageButton;
 
-import com.ruurdbijlsma.camera.Sliders.ValueSlider;
+import com.ruurdbijlsma.camera.Sliders.CameraValueSlider;
 
 /**
  * Gemaakt door ruurd op 19-3-2017.
  */
 
 public class SliderButton extends Button {
-    private ValueSlider slider;
+    private CameraValueSlider slider;
     private ButtonManager manager;
 
-    public SliderButton(ImageButton view, int inactiveResourceId, int activeResourceId, ValueSlider slider, ButtonManager manager) {
+    public SliderButton(ImageButton view, int inactiveResourceId, int activeResourceId, CameraValueSlider slider, ButtonManager manager) {
         super(view, inactiveResourceId, activeResourceId);
         this.slider = slider;
         this.manager = manager;
@@ -22,6 +22,7 @@ public class SliderButton extends Button {
     public void activate() {
         manager.deactivateAllSliderButtons();
         manager.setActiveSlider(slider);
+        slider.applyToCamera(slider.getSelectedValue());
         super.activate();
     }
 

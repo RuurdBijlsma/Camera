@@ -22,7 +22,7 @@ public abstract class CameraValueSlider extends ValueSlider {
         this.camera = camera;
     }
 
-    protected abstract void applyToCamera(String value);
+    public abstract void applyToCamera(String value);
 
     @Override
     public void onValueChange(String newValue, String oldValue) {
