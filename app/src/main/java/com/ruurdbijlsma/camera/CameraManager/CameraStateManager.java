@@ -15,14 +15,14 @@ import com.ruurdbijlsma.camera.Mode;
 
 
 public class CameraStateManager {
+    private static final float maximumPreviewExposureTime = 0.15f;
+    private static final float maximumCaptureExposureTime = 30;
+    public CameraState autoState;
     private Mode exposureMode;
     private Mode focusMode;
     private Mode colorCorrectionMode;
     private boolean faceDetection;
-
     private CameraState manualState;
-    public CameraState autoState;
-
     private int exposureCompensation;
 
     public CameraStateManager() {
@@ -66,9 +66,6 @@ public class CameraStateManager {
             request.set(CaptureRequest.STATISTICS_FACE_DETECT_MODE, CaptureRequest.STATISTICS_FACE_DETECT_MODE_SIMPLE);
     }
 
-
-    private static final float maximumPreviewExposureTime = 0.15f;
-
     CaptureRequest getPreviewRequest(CameraDevice device, Surface surface) throws CameraAccessException {
         int type = CameraDevice.TEMPLATE_PREVIEW;
 
@@ -80,17 +77,22 @@ public class CameraStateManager {
         return captureRequestBuilder.build();
     }
 
+    CaptureRequest getCaptureRequest(CameraDevice device, Surface surface) throws CameraAccessException {
+        int type = CameraDevice.TEMPLATE_STILL_CAPTURE;
+
+        CaptureRequest.Builder captureRequestBuilder = device.createCaptureRequest(type);
+        captureRequestBuilder.addTarget(surface);
+
+        applyToRequestBuilder(captureRequestBuilder, maximumCaptureExposureTime);
+
+        return captureRequestBuilder.build();
+    }
+
     public void onChange() {
     }
 
     public void setExposureCompensation(int exposureCompensation) {
         this.exposureCompensation = exposureCompensation;
-        onChange();
-    }
-
-    public void setExposureTime(float exposureTime) {
-        manualState.exposureTime = exposureTime;
-        exposureMode = Mode.MANUAL;
         onChange();
     }
 
@@ -106,18 +108,33 @@ public class CameraStateManager {
         onChange();
     }
 
+    public float getFocusDistanceInMeters() {
+        return 1 / manualState.focusDistance;
+    }
+
     public void setFocusDistanceInMeters(float focusDistance) {
         manualState.focusDistance = 1 / focusDistance;
         focusMode = Mode.MANUAL;
         onChange();
     }
 
-    public float getFocusDistanceInMeters() {
-        return 1 / manualState.focusDistance;
-    }
-
     public Mode getExposureMode() {
         return exposureMode;
+    }
+
+    public void setExposureMode(Mode exposureMode) {
+        this.exposureMode = exposureMode;
+        onChange();
+    }
+
+    public void setFocusMode(Mode focusMode) {
+        this.focusMode = focusMode;
+        onChange();
+    }
+
+    public void setColorCorrectionMode(Mode colorCorrectionMode) {
+        this.colorCorrectionMode = colorCorrectionMode;
+        onChange();
     }
 
     public Mode getFocusMode() {
@@ -128,17 +145,18 @@ public class CameraStateManager {
         return manualState.exposureTime;
     }
 
-    public void setExposureMode(Mode exposureMode) {
-        this.exposureMode = exposureMode;
-        onChange();
-    }
-
-    public void setManualState(CameraState manualState) {
-        this.manualState = manualState;
+    public void setExposureTime(float exposureTime) {
+        manualState.exposureTime = exposureTime;
+        exposureMode = Mode.MANUAL;
         onChange();
     }
 
     public CameraState getManualState() {
         return manualState;
+    }
+
+    public void setManualState(CameraState manualState) {
+        this.manualState = manualState;
+        onChange();
     }
 }

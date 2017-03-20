@@ -8,7 +8,6 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -120,6 +119,7 @@ public class ValueSlider extends ScrollView {
             textView.setPadding(textPadding, textPadding, textPadding, textPadding);
             textView.setTextColor(Color.WHITE);
             textView.setTextSize(textSize);
+            textView.setShadowLayer(3, 1, 1, Color.BLACK);
 
             layout.addView(textView);
         }

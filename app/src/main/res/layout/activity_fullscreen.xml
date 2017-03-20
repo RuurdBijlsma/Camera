@@ -11,14 +11,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+    <ImageButton
+        android:id="@+id/autoButton"
+        android:layout_width="45dp"
+        android:layout_height="30dp"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
-
-    </RelativeLayout>
+        android:layout_marginEnd="91dp"
+        android:layout_marginTop="60dp"
+        android:background="@android:color/transparent"
+        android:scaleType="centerInside"
+        android:visibility="gone"
+        app:srcCompat="@mipmap/autobutton" />
 
     <ImageButton
         android:id="@+id/capture"
@@ -43,6 +47,7 @@
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="415dp"
         android:layout_height="30dp"
         android:layout_alignParentBottom="true"
@@ -127,6 +132,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="415dp"
         android:layout_height="30dp"
         android:layout_alignParentTop="true"
@@ -140,7 +146,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:elevation="1dp"
-            android:text="4300K"
             android:textAlignment="center"
             android:textColor="@android:color/white" />
 
@@ -150,7 +155,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:elevation="1dp"
-            android:text="18cm"
             android:textAlignment="center"
             android:textColor="@android:color/white" />
 
@@ -160,7 +164,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:elevation="1dp"
-            android:text="ISO 2700"
             android:textAlignment="center"
             android:textColor="@android:color/white" />
 
@@ -170,7 +173,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:elevation="1dp"
-            android:text="1/60s"
             android:textAlignment="center"
             android:textColor="@android:color/white" />
 
@@ -180,10 +182,19 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:elevation="1dp"
-            android:text="F1.8"
             android:textAlignment="center"
             android:textColor="@android:color/white" />
     </LinearLayout>
+
+    <com.ruurdbijlsma.camera.MLRoundedImageView
+        android:id="@+id/galleryButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignEnd="@+id/capture"
+        android:layout_below="@+id/autoButton"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="9dp"
+        app:srcCompat="@mipmap/spicyboy" />
 
 
 </RelativeLayout>

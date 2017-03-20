@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -24,10 +25,13 @@ import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.util.Size;
 import android.view.Surface;
+import android.widget.ImageButton;
 
 import com.ruurdbijlsma.camera.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -42,9 +46,6 @@ public class Camera {
     private Surface surface;
     private CameraDevice device;
     private CameraCaptureSession currentSession;
-    private Semaphore cameraLock = new Semaphore(1);
-    private ImageReader imageReader;
-
     public CameraStateManager state = new CameraStateManager() {
         @Override
         public void onChange() {
@@ -57,7 +58,8 @@ public class Camera {
             }
         }
     };
-
+    private Semaphore cameraLock = new Semaphore(1);
+    private ImageReader imageReader;
     private CameraDevice.StateCallback onCameraOpen = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull final CameraDevice camera) {
@@ -102,7 +104,7 @@ public class Camera {
         return currentSession != null;
     }
 
-    private boolean getPermission() {
+    private boolean getCameraPermission() {
         boolean hasPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
         boolean shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA);
         if (!hasPermission && !shouldShowRationale)
@@ -110,11 +112,19 @@ public class Camera {
         return hasPermission;
     }
 
-    private void open() throws CameraAccessException {
+    private boolean getStoragePermission() {
+        boolean hasPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        boolean shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (!hasPermission && !shouldShowRationale)
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PackageManager.PERMISSION_GRANTED);
+        return hasPermission;
+    }
+
+    public void open() throws CameraAccessException {
         manager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
 
         ids = manager.getCameraIdList();
-        if (getPermission() && ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (getCameraPermission() && ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             try {
                 if (!cameraLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                     throw new RuntimeException("Time out waiting to lock camera opening.");
@@ -124,9 +134,10 @@ public class Camera {
                 e.printStackTrace();
             }
         }
+        getStoragePermission();
     }
 
-    private void close() {
+    public void close() {
         try {
             cameraLock.acquire();
             if (null != currentSession) {
@@ -137,10 +148,10 @@ public class Camera {
                 device.close();
                 device = null;
             }
-//            if (null != mImageReader) {
-//                mImageReader.close();
-//                mImageReader = null;
-//            }
+            if (null != imageReader) {
+                imageReader.close();
+                imageReader = null;
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException("Interrupted while trying to lock camera closing.", e);
         } finally {
@@ -162,14 +173,27 @@ public class Camera {
 //        int m1=CameraCharacteristics.STATISTICS_FACE_DETECT_MODE_FULL;
 //        int m2=CameraCharacteristics.STATISTICS_FACE_DETECT_MODE_OFF;
 //        int m3=CameraCharacteristics.STATISTICS_FACE_DETECT_MODE_SIMPLE;
+        Integer range = characteristics.get(CameraCharacteristics.SENSOR_MAX_ANALOG_SENSITIVITY);
 
         StreamConfigurationMap configs = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
         assert configs != null;
         Size[] sizes = configs.getOutputSizes(SurfaceTexture.class);
         Size optimalSize = getOptimalPreviewSize(sizes, getScreenSize());
 
+
+        //Setup image reader
+        StreamConfigurationMap map = characteristics.get(
+                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        Size largest = Collections.max(
+                Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),
+                new CompareSizesByArea());
+        imageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(), ImageFormat.JPEG, 1);
+        imageReader.setOnImageAvailableListener(ImageSaver.onImageAvailableListener, ImageSaver.backgroundHandler);
+
+
         ArrayList<Surface> surfaces = new ArrayList<>();
         surfaces.add(surface);
+        surfaces.add(imageReader.getSurface());
 
         CameraCaptureSession.StateCallback callback = new CameraCaptureSession.StateCallback() {
             @Override
@@ -219,6 +243,33 @@ public class Camera {
         state.autoState.focusDistance = focusDistance;
         state.autoState.exposureTime = expTime;
         state.autoState.aperture = aperture;
+    }
+
+    public void captureStillImage() {
+        final ImageButton captureButton = (ImageButton) activity.findViewById(R.id.capture);
+        captureButton.setImageResource(R.mipmap.captureactive);
+        try {
+            if (null == activity || null == device) {
+                return;
+            }
+            CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback() {
+                @Override
+                public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+                    captureButton.setImageResource(R.mipmap.capture);
+                    try {
+                        startPreview();
+                    } catch (CameraAccessException e) {
+                        e.printStackTrace();
+                    }
+//                    unlockFocus();
+                }
+            };
+
+            currentSession.stopRepeating();
+            currentSession.capture(state.getCaptureRequest(device, imageReader.getSurface()), captureCallback, null);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     private Size getScreenSize() {

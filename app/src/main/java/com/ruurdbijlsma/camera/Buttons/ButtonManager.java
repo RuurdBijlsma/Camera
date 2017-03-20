@@ -2,6 +2,7 @@ package com.ruurdbijlsma.camera.Buttons;
 
 import android.app.Activity;
 import android.support.annotation.Nullable;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
@@ -22,25 +23,28 @@ public class ButtonManager {
     private Button aeLockButton;
 
     private FrameLayout layout;
+    private Activity activity;
+    private ImageButton autoButton;
 
-    public ButtonManager(Activity activity, CameraValueSlider[] sliders, FrameLayout layout) {
+    public ButtonManager(final Activity activity, CameraValueSlider[] sliders, FrameLayout layout) {
         this.layout = layout;
+        autoButton = (ImageButton) activity.findViewById(R.id.autoButton);
 
         ImageButton imageButton;
         imageButton = (ImageButton) activity.findViewById(R.id.whiteBalanceButton);
-        whiteBalanceButton = new SliderButton(imageButton, R.mipmap.wbbutton, R.mipmap.wbbuttonactive, sliders[0], this);
+        whiteBalanceButton = new SliderButton(imageButton, R.mipmap.wbbutton, R.mipmap.wbbuttonactive, sliders[0], this, true);
 
         imageButton = (ImageButton) activity.findViewById(R.id.focusButton);
-        focusButton = new SliderButton(imageButton, R.mipmap.mfbutton, R.mipmap.mfbuttonactive, sliders[1], this);
+        focusButton = new SliderButton(imageButton, R.mipmap.mfbutton, R.mipmap.mfbuttonactive, sliders[1], this, true);
 
         imageButton = (ImageButton) activity.findViewById(R.id.exposureButton);
-        exposureButton = new SliderButton(imageButton, R.mipmap.expbutton, R.mipmap.expbuttonactive, sliders[2], this);
+        exposureButton = new SliderButton(imageButton, R.mipmap.expbutton, R.mipmap.expbuttonactive, sliders[2], this, false);
 
         imageButton = (ImageButton) activity.findViewById(R.id.isoButton);
-        isoButton = new SliderButton(imageButton, R.mipmap.isobutton, R.mipmap.isobuttonactive, sliders[3], this);
+        isoButton = new SliderButton(imageButton, R.mipmap.isobutton, R.mipmap.isobuttonactive, sliders[3], this, false);
 
         imageButton = (ImageButton) activity.findViewById(R.id.shutterButton);
-        shutterButton = new SliderButton(imageButton, R.mipmap.shutterbutton, R.mipmap.shutterbuttonactive, sliders[4], this);
+        shutterButton = new SliderButton(imageButton, R.mipmap.shutterbutton, R.mipmap.shutterbuttonactive, sliders[4], this, false);
 
         imageButton = (ImageButton) activity.findViewById(R.id.aeLockButton);
         aeLockButton = new Button(imageButton, R.mipmap.aelockbutton, R.mipmap.aelockbuttonactive) {
@@ -60,6 +64,14 @@ public class ButtonManager {
         aeLockButton.deactivate();
     }
 
+    void hideAutoButton() {
+        autoButton.setVisibility(View.GONE);
+    }
+
+    void showAutoButton() {
+        autoButton.setVisibility(View.VISIBLE);
+    }
+
     public void unlockAe() {
         deactivateAllSliderButtons();
         shutterButton.disable();
@@ -72,17 +84,29 @@ public class ButtonManager {
         shutterButton.enable();
         isoButton.enable();
         exposureButton.disable();
-
-        ///Todo: apply all slider values to camera state
     }
 
-    void deactivateAllSliderButtons() {
+    public void deactivateAllSliderButtons() {
         whiteBalanceButton.deactivate();
         focusButton.deactivate();
         exposureButton.deactivate();
         isoButton.deactivate();
         shutterButton.deactivate();
         setActiveSlider(null);
+    }
+
+    public Button getActiveSliderButton() {
+        if (whiteBalanceButton.isActive)
+            return whiteBalanceButton;
+        if (focusButton.isActive)
+            return focusButton;
+        if (exposureButton.isActive)
+            return exposureButton;
+        if (isoButton.isActive)
+            return isoButton;
+        if (shutterButton.isActive)
+            return shutterButton;
+        return null;
     }
 
     void setActiveSlider(@Nullable ValueSlider slider) {

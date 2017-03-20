@@ -1,7 +1,5 @@
 package com.ruurdbijlsma.camera;
 
-import android.util.Log;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -11,20 +9,18 @@ import java.util.TimerTask;
 
 public class SingleTimer {
     private static final SingleTimer ourInstance = new SingleTimer();
+    private Timer timer;
+    private boolean isRunning = false;
+    private TimerTask timerTask;
+    private SingleTimer() {
+    }
 
     public synchronized static SingleTimer getInstance() {
         return ourInstance;
     }
 
-    private Timer timer;
-    private boolean isRunning = false;
-    private TimerTask timerTask;
-
-    private SingleTimer() {
-    }
-
     public void start(TimerTask timerTask, int delay) {
-        if(isRunning)
+        if (isRunning)
             stop();
 
         this.timerTask = timerTask;
