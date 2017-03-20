@@ -261,6 +261,7 @@ public class Camera {
                     } catch (CameraAccessException e) {
                         e.printStackTrace();
                     }
+                    onCaptureDone();
 //                    unlockFocus();
                 }
             };
@@ -270,6 +271,9 @@ public class Camera {
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    public void onCaptureDone() {
     }
 
     private Size getScreenSize() {

@@ -2,10 +2,13 @@ package com.ruurdbijlsma.camera;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.camera2.CameraAccessException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -30,6 +33,7 @@ import com.ruurdbijlsma.camera.Sliders.ExposureSlider;
 import com.ruurdbijlsma.camera.Sliders.FocusSlider;
 import com.ruurdbijlsma.camera.Sliders.ISOSlider;
 
+import java.io.File;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -56,6 +60,7 @@ public class FullscreenActivity extends AppCompatActivity {
     private TextView isoInfo;
     private TextView shutterInfo;
     private TextView apertureInfo;
+    private ImageView galleryButton;
 
     @Override
     protected void onResume() {
@@ -177,7 +182,9 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         });
 
-        ImageView galleryButton = (ImageView) findViewById(R.id.galleryButton);
+        galleryButton = (ImageView) findViewById(R.id.galleryButton);
+        updateGalleryButton();
+
         galleryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,8 +196,22 @@ public class FullscreenActivity extends AppCompatActivity {
                     intent.setDataAndType(Uri.parse(path), "image/*");
                     startActivity(intent);
                 }
+                String last = getLatestImage();
+                Log.d("DEBUG", last);
             }
         });
+    }
+
+    void updateGalleryButton() {
+        Bitmap bmp = BitmapFactory.decodeFile(getLatestImage());
+        galleryButton.setImageBitmap(bmp);
+    }
+
+    String getLatestImage() {
+        File cameraFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
+        File[] files = cameraFolder.listFiles();
+        File last = files[files.length - 1];
+        return last.getAbsolutePath();
     }
 
     @Override
@@ -224,7 +245,24 @@ public class FullscreenActivity extends AppCompatActivity {
         SurfaceHolder.Callback callback = new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-                camera = new Camera(context, holder.getSurface());
+                camera = new Camera(context, holder.getSurface()) {
+                    @Override
+                    public void onCaptureDone() {
+                        super.onCaptureDone();
+                        Timer t = new Timer();
+                        t.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateGalleryButton();
+                                    }
+                                });
+                            }
+                        }, 200);
+                    }
+                };
                 initialize();
             }
 

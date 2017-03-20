@@ -63,6 +63,9 @@ public class ImageSaver implements Runnable {
         return 0;
     }
 
+    public static void onSaved() {
+    }
+
     public static File createFile(String directory) {
         Calendar c = Calendar.getInstance();
         String minute = String.valueOf(c.get(Calendar.MINUTE));
