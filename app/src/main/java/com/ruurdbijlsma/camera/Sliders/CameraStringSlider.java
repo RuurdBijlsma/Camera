@@ -27,7 +27,7 @@ public abstract class CameraStringSlider extends CameraValueSlider {
         if (value instanceof Integer)
             result = (float) (int) value;
         else if (value instanceof Double)
-            result = (float) (double) stringToValueMap.get(string);
+            result = (float) (double) value;
 
         return result;
     }

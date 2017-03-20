@@ -1,13 +1,12 @@
 package com.ruurdbijlsma.camera.CameraManager;
 
-import android.graphics.Paint;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.RggbChannelVector;
 import android.view.Surface;
 
-import com.ruurdbijlsma.camera.ColorTemperatureConverter;
+import com.ruurdbijlsma.camera.Converters.ColorTemperatureConverter;
 import com.ruurdbijlsma.camera.Mode;
 
 /**
@@ -22,6 +21,8 @@ public class CameraStateManager {
     private boolean faceDetection;
 
     private CameraState manualState;
+    public CameraState autoState;
+
     private int exposureCompensation;
 
     public CameraStateManager() {
@@ -31,6 +32,7 @@ public class CameraStateManager {
         faceDetection = false;
 
         manualState = new CameraState(0.01f, 1, 800, ColorTemperatureConverter.kelvinToRgb(6600));
+        autoState = new CameraState();
         exposureCompensation = 0;
     }
 

@@ -10,17 +10,22 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.ruurdbijlsma.camera.Buttons.ButtonManager;
 import com.ruurdbijlsma.camera.CameraManager.Camera;
+import com.ruurdbijlsma.camera.Converters.ColorTemperatureConverter;
+import com.ruurdbijlsma.camera.Converters.ExposureTimeConverter;
 import com.ruurdbijlsma.camera.Sliders.CameraValueSlider;
+import com.ruurdbijlsma.camera.Sliders.ColorCorrectionSlider;
 import com.ruurdbijlsma.camera.Sliders.ExposureCompensationSlider;
 import com.ruurdbijlsma.camera.Sliders.ExposureSlider;
 import com.ruurdbijlsma.camera.Sliders.FocusSlider;
 import com.ruurdbijlsma.camera.Sliders.ISOSlider;
-import com.ruurdbijlsma.camera.Sliders.ColorCorrectionSlider;
 
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 ///Todo:
 ///Elke button binden naar actie
@@ -37,6 +42,12 @@ public class FullscreenActivity extends AppCompatActivity {
     FrameLayout sliderLayout;
     ButtonManager buttonManager;
     Camera camera;
+    private final int infoUpdateDelay = 500;
+    private TextView whiteBalanceInfo;
+    private TextView focusInfo;
+    private TextView isoInfo;
+    private TextView shutterInfo;
+    private TextView apertureInfo;
 
     private void initialize() {
         sliders = createSliders();
@@ -56,6 +67,36 @@ public class FullscreenActivity extends AppCompatActivity {
                     camera.state.setExposureMode(Mode.MANUAL);
             }
         };
+
+        whiteBalanceInfo = (TextView) findViewById(R.id.wbInfo);
+        focusInfo = (TextView) findViewById(R.id.focusInfo);
+        isoInfo = (TextView) findViewById(R.id.isoInfo);
+        shutterInfo = (TextView) findViewById(R.id.expInfo);
+        apertureInfo = (TextView) findViewById(R.id.apertureInfo);
+
+        Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                int k = ColorTemperatureConverter.rgbNormalizedToKelvin(camera.state.autoState.colorCorrection);
+                final int kelvin = Math.round(k / 100) * 100;
+                final int focusDistance = (int) (100 / camera.state.autoState.focusDistance);
+                final int iso = Math.round(camera.state.autoState.ISO / 50) * 50;
+                final String expTime = ExposureTimeConverter.secondsToFraction(camera.state.autoState.exposureTime);
+                final float aperture = camera.state.autoState.aperture;
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        whiteBalanceInfo.setText(kelvin + "K");
+                        focusInfo.setText(focusDistance + "cm");
+                        isoInfo.setText("ISO" + iso);
+                        shutterInfo.setText(expTime + "s");
+                        apertureInfo.setText("F" + aperture);
+                    }
+                });
+            }
+        }, 0, infoUpdateDelay);
 
         setOnClickListeners();
     }

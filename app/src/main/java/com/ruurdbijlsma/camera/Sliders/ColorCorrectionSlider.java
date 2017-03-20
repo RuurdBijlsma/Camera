@@ -4,7 +4,7 @@ import android.content.Context;
 import android.hardware.camera2.params.RggbChannelVector;
 
 import com.ruurdbijlsma.camera.CameraManager.Camera;
-import com.ruurdbijlsma.camera.ColorTemperatureConverter;
+import com.ruurdbijlsma.camera.Converters.ColorTemperatureConverter;
 
 import java.util.LinkedHashMap;
 

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -23,11 +22,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
-import com.ruurdbijlsma.camera.ColorTemperatureConverter;
 import com.ruurdbijlsma.camera.R;
 
 import java.util.ArrayList;
@@ -212,19 +209,16 @@ public class Camera {
 
     private void onPreviewCaptureResult(CameraCaptureSession session, CaptureRequest request, CaptureResult result) {
         float expTime = (float) result.get(CaptureResult.SENSOR_EXPOSURE_TIME) / 1000000000;
-        float focusDistance = 100 / result.get(CaptureResult.LENS_FOCUS_DISTANCE);
-        float ISO = result.get(CaptureResult.SENSOR_SENSITIVITY);
+        float focusDistance = result.get(CaptureResult.LENS_FOCUS_DISTANCE);
+        int ISO = result.get(CaptureResult.SENSOR_SENSITIVITY);
+        float aperture = result.get(CaptureResult.LENS_APERTURE);
         RggbChannelVector colorCorrectionGains = result.get(CaptureResult.COLOR_CORRECTION_GAINS);
 
-        int kelvin = ColorTemperatureConverter.rgbNormalizedToKelvin(colorCorrectionGains);
-
-        RggbChannelVector test = ColorTemperatureConverter.kelvinToRgb(6000);
-        int backtokelvin = ColorTemperatureConverter.rgbToKelvin(test);
-
-        Log.d("ISO", String.valueOf(ISO));
-        Log.d("Temperature", String.valueOf(kelvin));
-        Log.d("Exp Time", String.valueOf(expTime));
-        Log.d("Focus Distance", String.valueOf(focusDistance) + " cm");
+        state.autoState.colorCorrection = colorCorrectionGains;
+        state.autoState.ISO = ISO;
+        state.autoState.focusDistance = focusDistance;
+        state.autoState.exposureTime = expTime;
+        state.autoState.aperture = aperture;
     }
 
     private Size getScreenSize() {

@@ -1,4 +1,4 @@
-package com.ruurdbijlsma.camera;
+package com.ruurdbijlsma.camera.Converters;
 
 import android.hardware.camera2.params.RggbChannelVector;
 
