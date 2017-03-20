@@ -26,7 +26,9 @@ public class FocusSlider extends CameraStringSlider {
             put("20cm", 0.20);
             put("15cm", 0.15);
             put("10cm", 0.10);
-            put("5cm", 0.05);
+            put("9cm", 0.09);
+            put("8cm", 0.08);
+            put("7cm", 0.07);
         }});
     }
 

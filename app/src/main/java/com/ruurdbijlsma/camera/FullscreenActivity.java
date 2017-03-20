@@ -18,7 +18,7 @@ import com.ruurdbijlsma.camera.Sliders.ExposureCompensationSlider;
 import com.ruurdbijlsma.camera.Sliders.ExposureSlider;
 import com.ruurdbijlsma.camera.Sliders.FocusSlider;
 import com.ruurdbijlsma.camera.Sliders.ISOSlider;
-import com.ruurdbijlsma.camera.Sliders.WhiteBalanceSlider;
+import com.ruurdbijlsma.camera.Sliders.ColorCorrectionSlider;
 
 import java.util.Objects;
 
@@ -62,7 +62,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
     public CameraValueSlider[] createSliders() {
         return new CameraValueSlider[]{
-                new WhiteBalanceSlider(this, camera),
+                new ColorCorrectionSlider(this, camera),
                 new FocusSlider(this, camera),
                 new ExposureCompensationSlider(this, camera),
                 new ISOSlider(this, camera),

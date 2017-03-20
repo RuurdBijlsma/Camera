@@ -1,11 +1,13 @@
 package com.ruurdbijlsma.camera.CameraManager;
 
+import android.graphics.Paint;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
-import android.util.Log;
+import android.hardware.camera2.params.RggbChannelVector;
 import android.view.Surface;
 
+import com.ruurdbijlsma.camera.ColorTemperatureConverter;
 import com.ruurdbijlsma.camera.Mode;
 
 /**
@@ -16,51 +18,50 @@ import com.ruurdbijlsma.camera.Mode;
 public class CameraStateManager {
     private Mode exposureMode;
     private Mode focusMode;
-    private Mode whiteBalanceMode;
+    private Mode colorCorrectionMode;
+    private boolean faceDetection;
 
-    private float exposureTime;
-    private float focusDistance;
-    private float ISO;
-    private int whiteBalance;
+    private CameraState manualState;
     private int exposureCompensation;
 
     public CameraStateManager() {
         exposureMode = Mode.AUTO;
         focusMode = Mode.AUTO;
-        whiteBalanceMode = Mode.AUTO;
+        colorCorrectionMode = Mode.AUTO;
+        faceDetection = false;
 
-        exposureTime = 0.01f;
-        focusDistance = 1;
-        ISO = 800;
-        whiteBalance = CaptureRequest.CONTROL_AWB_MODE_AUTO;
+        manualState = new CameraState(0.01f, 1, 800, ColorTemperatureConverter.kelvinToRgb(6600));
         exposureCompensation = 0;
     }
 
     void applyToRequestBuilder(CaptureRequest.Builder request, float maximumExposureTime) {
         if (exposureMode == Mode.MANUAL) {
             request.set(CaptureRequest.CONTROL_AE_MODE, 0);
-            float expTime = exposureTime > maximumExposureTime ? maximumExposureTime : exposureTime;
+            float expTime = manualState.exposureTime > maximumExposureTime ? maximumExposureTime : manualState.exposureTime;
             long nanoseconds = (long) (expTime * 1000000000);
             request.set(CaptureRequest.SENSOR_EXPOSURE_TIME, nanoseconds);
         }
 
         if (focusMode == Mode.MANUAL) {
             request.set(CaptureRequest.CONTROL_AF_MODE, 0);
-            request.set(CaptureRequest.LENS_FOCUS_DISTANCE, focusDistance);
+            request.set(CaptureRequest.LENS_FOCUS_DISTANCE, manualState.focusDistance);
         }
 
         if (exposureMode == Mode.MANUAL) {
-            int isoValue = (int) ISO;
+            int isoValue = (int) manualState.ISO;
             request.set(CaptureRequest.SENSOR_SENSITIVITY, isoValue);
         } else {
             request.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposureCompensation);
         }
 
-        if (whiteBalanceMode == Mode.MANUAL) {
-            request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
-            request.set(CaptureRequest.CONTROL_AWB_MODE, whiteBalance);
-            Log.d("DEBUG", String.valueOf(request.get(CaptureRequest.CONTROL_AWB_MODE)));
+        if (colorCorrectionMode == Mode.MANUAL) {
+            request.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_OFF);
+            request.set(CaptureRequest.COLOR_CORRECTION_MODE, CaptureRequest.COLOR_CORRECTION_MODE_TRANSFORM_MATRIX);
+            request.set(CaptureRequest.COLOR_CORRECTION_GAINS, manualState.colorCorrection);
         }
+
+        if (faceDetection)
+            request.set(CaptureRequest.STATISTICS_FACE_DETECT_MODE, CaptureRequest.STATISTICS_FACE_DETECT_MODE_SIMPLE);
     }
 
 
@@ -86,31 +87,31 @@ public class CameraStateManager {
     }
 
     public void setExposureTime(float exposureTime) {
-        this.exposureTime = exposureTime;
+        manualState.exposureTime = exposureTime;
         exposureMode = Mode.MANUAL;
         onChange();
     }
 
     public void setISO(float ISO) {
-        this.ISO = ISO;
+        manualState.ISO = ISO;
         exposureMode = Mode.MANUAL;
         onChange();
     }
 
-    public void setWhiteBalance(int whiteBalance) {
-        this.whiteBalance = whiteBalance;
-        whiteBalanceMode = Mode.MANUAL;
+    public void setColorCorrection(RggbChannelVector colorCorrection) {
+        manualState.colorCorrection = colorCorrection;
+        colorCorrectionMode = Mode.MANUAL;
         onChange();
     }
 
     public void setFocusDistanceInMeters(float focusDistance) {
-        this.focusDistance = 1 / focusDistance;
+        manualState.focusDistance = 1 / focusDistance;
         focusMode = Mode.MANUAL;
         onChange();
     }
 
     public float getFocusDistanceInMeters() {
-        return 1 / focusDistance;
+        return 1 / manualState.focusDistance;
     }
 
     public Mode getExposureMode() {
@@ -122,11 +123,20 @@ public class CameraStateManager {
     }
 
     public float getExposureTime() {
-        return exposureTime;
+        return manualState.exposureTime;
     }
 
     public void setExposureMode(Mode exposureMode) {
         this.exposureMode = exposureMode;
         onChange();
+    }
+
+    public void setManualState(CameraState manualState) {
+        this.manualState = manualState;
+        onChange();
+    }
+
+    public CameraState getManualState() {
+        return manualState;
     }
 }

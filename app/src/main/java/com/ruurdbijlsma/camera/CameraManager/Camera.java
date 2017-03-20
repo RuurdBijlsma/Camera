@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -12,15 +13,21 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.RggbChannelVector;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.ImageReader;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
+import com.ruurdbijlsma.camera.ColorTemperatureConverter;
 import com.ruurdbijlsma.camera.R;
 
 import java.util.ArrayList;
@@ -45,16 +52,11 @@ public class Camera {
         @Override
         public void onChange() {
             if (isReady()) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            startPreview();
-                        } catch (CameraAccessException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                try {
+                    startPreview();
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
             }
         }
     };
@@ -152,7 +154,18 @@ public class Camera {
     private void startCapture(CameraDevice camera) throws CameraAccessException {
         device = camera;
 
-        final CameraCharacteristics characteristics = manager.getCameraCharacteristics(camera.getId());
+        final CameraCharacteristics characteristics = manager.getCameraCharacteristics(device.getId());
+
+//        float[] a= characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_APERTURES);
+//        float[] b= characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS);
+//        Range<Long> c= characteristics.get(CameraCharacteristics.SENSOR_INFO_EXPOSURE_TIME_RANGE);
+//        int[] d= characteristics.get(CameraCharacteristics.STATISTICS_INFO_AVAILABLE_FACE_DETECT_MODES);
+//        int e= characteristics.get(CameraCharacteristics.STATISTICS_INFO_MAX_FACE_COUNT);
+//
+//        int m1=CameraCharacteristics.STATISTICS_FACE_DETECT_MODE_FULL;
+//        int m2=CameraCharacteristics.STATISTICS_FACE_DETECT_MODE_OFF;
+//        int m3=CameraCharacteristics.STATISTICS_FACE_DETECT_MODE_SIMPLE;
+
         StreamConfigurationMap configs = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
         assert configs != null;
         Size[] sizes = configs.getOutputSizes(SurfaceTexture.class);
@@ -187,7 +200,31 @@ public class Camera {
 
     private void startPreview() throws CameraAccessException {
         CaptureRequest request = state.getPreviewRequest(device, surface);
-        currentSession.setRepeatingRequest(request, null, null);
+        final CameraCaptureSession.CaptureCallback captureCallback = new CameraCaptureSession.CaptureCallback() {
+            @Override
+            public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+                onPreviewCaptureResult(session, request, result);
+            }
+        };
+
+        currentSession.setRepeatingRequest(request, captureCallback, new Handler());
+    }
+
+    private void onPreviewCaptureResult(CameraCaptureSession session, CaptureRequest request, CaptureResult result) {
+        float expTime = (float) result.get(CaptureResult.SENSOR_EXPOSURE_TIME) / 1000000000;
+        float focusDistance = 100 / result.get(CaptureResult.LENS_FOCUS_DISTANCE);
+        float ISO = result.get(CaptureResult.SENSOR_SENSITIVITY);
+        RggbChannelVector colorCorrectionGains = result.get(CaptureResult.COLOR_CORRECTION_GAINS);
+
+        int kelvin = ColorTemperatureConverter.rgbNormalizedToKelvin(colorCorrectionGains);
+
+        RggbChannelVector test = ColorTemperatureConverter.kelvinToRgb(6000);
+        int backtokelvin = ColorTemperatureConverter.rgbToKelvin(test);
+
+        Log.d("ISO", String.valueOf(ISO));
+        Log.d("Temperature", String.valueOf(kelvin));
+        Log.d("Exp Time", String.valueOf(expTime));
+        Log.d("Focus Distance", String.valueOf(focusDistance) + " cm");
     }
 
     private Size getScreenSize() {

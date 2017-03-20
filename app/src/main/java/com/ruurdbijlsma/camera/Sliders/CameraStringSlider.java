@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
  */
 
 public abstract class CameraStringSlider extends CameraValueSlider {
-    private LinkedHashMap stringToValueMap;
+    protected LinkedHashMap stringToValueMap;
 
     public CameraStringSlider(Context context, Camera camera, LinkedHashMap values) {
         super(context, camera, (String[]) values.keySet().toArray(

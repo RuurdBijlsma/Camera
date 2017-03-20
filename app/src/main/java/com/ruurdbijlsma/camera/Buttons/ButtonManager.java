@@ -61,13 +61,14 @@ public class ButtonManager {
     }
 
     public void unlockAe() {
-        setActiveSlider(null);
+        deactivateAllSliderButtons();
         shutterButton.disable();
         isoButton.disable();
         exposureButton.enable();
     }
 
     public void lockAe() {
+        deactivateAllSliderButtons();
         shutterButton.enable();
         isoButton.enable();
         exposureButton.disable();
@@ -81,6 +82,7 @@ public class ButtonManager {
         exposureButton.deactivate();
         isoButton.deactivate();
         shutterButton.deactivate();
+        setActiveSlider(null);
     }
 
     void setActiveSlider(@Nullable ValueSlider slider) {
